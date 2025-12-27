@@ -1,0 +1,32 @@
+{
+  "timestamp_utc": "2025-08-24T09:38:56Z",
+  "features": {
+    "path": "C:\\Users\\frank\\Desktop\\Latent\\features\\features.parquet",
+    "rows": 14430,
+    "cols": 24,
+    "ok": true
+  },
+  "latent": {
+    "path": "C:\\Users\\frank\\Desktop\\Latent\\models\\z.npy",
+    "n": 14430,
+    "dim": 12,
+    "ok": true
+  },
+  "clusters": {
+    "path": "C:\\Users\\frank\\Desktop\\Latent\\clusters\\clusters.parquet",
+    "n_rows": 14430,
+    "n_clusters": 8,
+    "ok": true
+  },
+  "surrogate": {
+    "path": "C:\\Users\\frank\\Desktop\\Latent\\surrogate\\surrogate_meta.json",
+    "type": "random_forest",
+    "ok": true
+  },
+  "proposals": {
+    "path": "C:\\Users\\frank\\Desktop\\Latent\\proposals\\proposals.json",
+    "count": 40,
+    "ok": true
+  },
+  "notes": []
+}

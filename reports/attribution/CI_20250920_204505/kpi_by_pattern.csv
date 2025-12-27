@@ -1,0 +1,5 @@
+pattern_at_entry,count,mean,median,iqr,lift_vs_global,mw_pvalue,cliffs_delta,bh_reject_0.05
+candle_engulf_bear,1,1.8,1.8,0.0,0.8333333333333334,,0.16666666666666674,False
+inside_bar,1,0.1,0.1,0.0,-0.8666666666666667,,-0.16666666666666663,False
+none,3,1.5333333333333332,2.5,2.25,0.5666666666666665,,0.16666666666666674,False
+outside_bar,1,-0.7,-0.7,0.0,-1.6666666666666665,,-0.5,False

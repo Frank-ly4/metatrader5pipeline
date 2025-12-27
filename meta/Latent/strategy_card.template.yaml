@@ -1,0 +1,71 @@
+# Strategy Card Template (fill per UID)
+# Save as: cards/strategy_card_<uid>.yaml
+
+uid: ""
+version: "opt_4.2.4"
+owner: ""
+created_utc: ""
+last_updated_utc: ""
+
+code:
+  repo_path: "C:\\Users\\frank\\Desktop\\opt_4\\4.2\\4.2.4"
+  commit_hash: ""
+
+data:
+  charts: []              # e.g., ["ETHUSDT_2h"]
+  run_id: ""
+  trial_id: ""
+  trial_uid: ""          # RUNID:TRIALID if applicable
+  data_hash: ""          # optional content hash of dataset slice
+
+params:
+  # Copy flattened params used for this UID (as in outputs)
+  # e.g., fast_min_len: 8, fast_max_len: 14, slow_min_len: 30, slow_max_len: 52
+
+backtest_config:
+  fees: 0.0
+  position_size: 0.3
+  size_type: percent
+  max_orders: 1
+  data_freq: "2h"
+
+metrics:
+  is_oos: false
+  aggregate:
+    total_return: null
+    sharpe_ratio: null
+    sortino_ratio: null
+    calmar_ratio: null
+    max_drawdown: null
+    profit_factor: null
+    omega_0: null
+    omega_fees: null
+    ulcer_index: null
+    upi: null
+    tail_ratio: null
+    cvar_95: null
+    equity_r2: null
+    turnover: null
+    time_in_market: null
+  per_fold: []            # list of fold dicts if k-fold
+
+latent:
+  embedder_version: ""
+  umap_version: ""
+  z: []                   # list of floats
+  recon_error: null
+  cluster_id: ""
+  cluster_prob: null
+
+lineage:
+  parents: []             # e.g., ["RUN12:TRIAL34"]
+  method: ""             # centroid_decode | trust_region | bo | map_elites | manual
+
+approvals:
+  state: draft            # draft | candidate | ready | deprecated
+  reviewers: []
+  notes: ""
+
+attachments:
+  artifacts: []           # paths to JSON/CSV/PNG reports
+  comments: []

@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0",
+  "generated_at_utc": "2025-08-24T12:00:00Z",
+  "model_versions": {
+    "embedder": "ae_v0.1.0",
+    "umap": "umap_v0.1.0"
+  },
+  "nodes": [
+    {
+      "id": "CLUSTER_C1",
+      "type": "cluster",
+      "label": "C1 (Trend, high Sharpe)",
+      "z": [0.2, -0.8, 0.4],
+      "metrics": { "median_sharpe": 1.7, "size": 63 }
+    },
+    {
+      "id": "UID_RUN1:TRIAL10",
+      "type": "uid",
+      "label": "RUN1:TRIAL10",
+      "z": [0.18, -0.75, 0.39],
+      "cluster_id": "CLUSTER_C1",
+      "metrics": { "sharpe": 1.6, "calmar": 0.9 }
+    },
+    {
+      "id": "UID_PROPOSAL_ABC123",
+      "type": "uid",
+      "label": "PROPOSAL ABC123",
+      "z": [0.25, -0.70, 0.45],
+      "cluster_id": "CLUSTER_C1",
+      "metrics": { "predicted_sharpe": 1.8 }
+    }
+  ],
+  "edges": [
+    {
+      "source": "UID_RUN1:TRIAL10",
+      "target": "UID_PROPOSAL_ABC123",
+      "method": "trust_region",
+      "proposal_id": "ABC123",
+      "score": 0.82,
+      "notes": "Local ellipsoid sampling with BO step"
+    }
+  ]
+}

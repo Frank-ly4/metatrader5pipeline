@@ -1,0 +1,91 @@
+
+//@version=6
+strategy(title="Gold Bands v4.2 – 20250810_110530/8", overlay=true, initial_capital=500.0, commission_type=strategy.commission.percent, commission_value=0.050000, default_qty_type=strategy.percent_of_equity, default_qty_value=30, pyramiding=3)
+
+
+// --- Identifiers / metadata
+var string run_id = "20250810_110530"
+var string trial_id = "8"
+var string chart_name = "chart_cl_4.csv"
+
+// --- Inputs (fixed to selected params)
+fast_min_len = input.int(defval=8, title='fast_min_len')
+fast_max_len = input.int(defval=20, title='fast_max_len')
+slow_min_len = input.int(defval=28, title='slow_min_len')
+slow_max_len = input.int(defval=48, title='slow_max_len')
+
+dma_atr_len  = input.int(defval=14,  title='dma_atr_len')
+atr_len      = input.int(defval=16,      title='atr_len')
+
+upper_outer_mult = input.float(defval=1.8, title='upper_outer_mult')
+lower_outer_mult = input.float(defval=2, title='lower_outer_mult')
+upper_inner_mult = input.float(defval=1, title='upper_inner_mult')
+lower_inner_mult = input.float(defval=1, title='lower_inner_mult')
+
+momentum_len        = input.int(defval=12, title='momentum_len')
+momentum_threshold  = input.float(defval=0.65, title='momentum_threshold (quantile)')
+
+// --- Helper: Simple TR-based ATR (SMA of TR)
+tr_hl = high - low
+tr_hc = math.abs(high - close[1])
+tr_lc = math.abs(low - close[1])
+tr = math.max(tr_hl, math.max(tr_hc, tr_lc))
+atr_sma = ta.sma(tr, atr_len)
+
+// --- McGinley DMA dynamic length, approximated with volatility index
+f_mcg_dma(src, min_len, max_len, atr_len) =>
+    volatility = ta.sma(tr, atr_len) / src
+    vol_low = ta.lowest(volatility, 100)
+    vol_high = ta.highest(volatility, 100)
+    vol_range = math.max(vol_high - vol_low, 1e-9)
+    vol_index = (volatility - vol_low) / vol_range
+    dyn_len = max_len - (max_len - min_len) * vol_index
+    final_len = math.round(dyn_len)
+    alpha = 2.0 / (final_len + 1)
+    var float dma = na
+    dma := na(dma[1]) ? src : alpha * src + (1 - alpha) * dma[1]
+    dma
+
+fast_dma = f_mcg_dma(close, fast_min_len, fast_max_len, dma_atr_len)
+slow_dma = f_mcg_dma(close, slow_min_len, slow_max_len, dma_atr_len)
+
+is_uptrend = fast_dma > slow_dma
+channel_upper_ma = is_uptrend ? fast_dma : slow_dma
+channel_lower_ma = is_uptrend ? slow_dma : fast_dma
+
+upper_outer = channel_upper_ma + atr_sma * upper_outer_mult
+upper_inner = channel_upper_ma + atr_sma * upper_inner_mult
+lower_inner = channel_lower_ma - atr_sma * lower_inner_mult
+lower_outer = channel_lower_ma - atr_sma * lower_outer_mult
+
+// --- Momentum filter (approximate percentile over 500 bars)
+mom = math.abs(close / close[momentum_len] - 1)
+// Use percent rank for broad v6 compatibility
+mom_thresh = momentum_threshold * 100.0
+mom_prank = ta.percentrank(mom, 500)
+is_trending = mom_prank > mom_thresh
+is_ranging = not is_trending
+
+// --- Entries (defaults from Python toggles OFF)
+bullish_pullback = is_uptrend and (low <= slow_dma) and (close > slow_dma)
+trending_long_entry = is_trending and bullish_pullback
+ranging_long_entry = is_ranging and (low < lower_outer)
+entries = trending_long_entry or ranging_long_entry
+
+// --- Exits
+base_exit = (close[1] > slow_dma[1]) and (close < slow_dma)
+exits = base_exit
+
+// --- Orders (Option B pyramiding, 30% layers via default_qty_type)
+if (entries)
+    strategy.entry("L", strategy.long)
+if (exits)
+    strategy.close("L")
+
+// --- Plots
+plot(fast_dma, color=color.new(color.orange, 0), title='fast_dma')
+plot(slow_dma, color=color.new(color.blue, 0), title='slow_dma')
+plot(upper_outer, color=color.new(color.red, 30), title='upper_outer')
+plot(upper_inner, color=color.new(color.red, 70), title='upper_inner')
+plot(lower_inner, color=color.new(color.green, 70), title='lower_inner')
+plot(lower_outer, color=color.new(color.green, 30), title='lower_outer')

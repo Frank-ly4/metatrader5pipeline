@@ -1,0 +1,57 @@
+{
+  "metadata": {
+    "method": "lhs",
+    "trials_per_chart": 1,
+    "num_charts": 1,
+    "total_trials": 1,
+    "metric": "total_return",
+    "seed": 42,
+    "timestamp": "2025-09-14 17:11:42",
+    "charts_processed": [
+      "chart_cl_1.csv"
+    ],
+    "kfold": 0,
+    "embargo_frac": 0.05,
+    "performance_mode": 1
+  },
+  "results": [
+    {
+      "total_return": -15.533707966257392,
+      "sharpe_ratio": -2.5938115991705706,
+      "sortino_ratio": -3.0175364348720466,
+      "calmar_ratio": -0.01684203925454638,
+      "max_drawdown": 17.56638113684438,
+      "win_rate": 25.688073394495415,
+      "total_trades": 546,
+      "profit_factor": 0.39630777348908336,
+      "expectancy": -0.28502211629769814,
+      "start_capital": 1000.0,
+      "end_capital": 844.662920337426,
+      "avg_hold_hours": null,
+      "ulcer_index": 0.1266136853055598,
+      "omega_0": 0.7797457810934001,
+      "omega_fees": 0.25723770953802505,
+      "chart": "chart_cl_1.csv",
+      "trial_id": 1,
+      "method": "lhs",
+      "param_fast_min_len": 8,
+      "param_fast_max_len": 20,
+      "param_slow_min_len": 28,
+      "param_slow_max_len": 48,
+      "param_dma_atr_len": 16,
+      "param_atr_len": 12,
+      "param_upper_outer_mult": 1.8,
+      "param_lower_outer_mult": 1.8,
+      "param_upper_inner_mult": 1.2,
+      "param_lower_inner_mult": 1.2,
+      "param_momentum_len": 14,
+      "param_momentum_threshold": 0.65,
+      "param_momentum_lookback": 75,
+      "param_slope_lookback": 1,
+      "param_rsi_len": 14,
+      "param_rsi_oversold": 35,
+      "param_trailing_atr_mult": 1.5,
+      "trial_uid": "20250914_171142:1"
+    }
+  ]
+}

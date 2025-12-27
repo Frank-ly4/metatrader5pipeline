@@ -1,0 +1,52 @@
+//@version=6
+indicator("Dynamic Bands (McGinley/Ichimoku) with ATR v6", "DynBands ATR v6", overlay=true, max_lines_count=10)
+
+// --- McGinley DMA Function ---
+mcginley_calc(float source, int lengthVal) =>
+    coeff = 0.6
+    var float dma = na
+    prev_dma = nz(dma[1], source)
+    denominator_ratio_part = source / prev_dma
+    dma := prev_dma + (source - prev_dma) / (lengthVal * math.pow(denominator_ratio_part, coeff))
+    dma
+
+// --- Ichimoku Calculation ---
+donchian_mid(int lengthVal) =>
+    (ta.highest(high, lengthVal) + ta.lowest(low, lengthVal)) / 2
+
+// --- Inputs ---
+maType = input.string("McGinley DMA", "MA Type", ["McGinley DMA", "Ichimoku Lines"])
+
+// McGinley Parameters
+lenFast = input.int(9, "Fast Length", 1, group="McGinley")
+lenSlow = input.int(21, "Slow Length", 1, group="McGinley")
+src = input.source(close, "Source", group="McGinley")
+
+// Ichimoku Parameters
+lenTenkan = input.int(9, "Tenkan Periods", 1, group="Ichimoku")
+lenKijun = input.int(26, "Kijun Periods", 1, group="Ichimoku")
+
+// --- Calculations ---
+line1 = maType == "McGinley DMA" ? mcginley_calc(src, lenFast) : donchian_mid(lenTenkan)
+line2 = maType == "McGinley DMA" ? mcginley_calc(src, lenSlow) : donchian_mid(lenKijun)
+
+// --- Plotting with Proper Constant Titles ---
+plot(maType == "McGinley DMA" ? line1 : na, title="Fast DMA", color=color.white, linewidth=2)
+plot(maType == "McGinley DMA" ? line2 : na, title="Slow DMA", color=color.red, linewidth=2)
+plot(maType == "Ichimoku Lines" ? line1 : na, title="Tenkan-sen", color=color.white, linewidth=2)
+plot(maType == "Ichimoku Lines" ? line2 : na, title="Kijun-sen", color=color.red, linewidth=2)
+
+// --- ATR Bands ---
+atrCenter = switch input.string("Fast MA/Tenkan", "ATR Center", ["Fast MA/Tenkan", "Slow MA/Kijun", "Midpoint"])
+    "Fast MA/Tenkan" => line1
+    "Slow MA/Kijun" => line2
+    => (line1 + line2) / 2
+
+atrVal = ta.atr(input.int(14, "ATR Length"))
+multInner = input.float(1.5, "Inner Multiplier")
+multOuter = input.float(2.5, "Outer Multiplier")
+
+plot(atrCenter + atrVal * multOuter, "Upper Outer", color.blue, 1)
+plot(atrCenter - atrVal * multOuter, "Lower Outer", color.blue, 1)
+plot(atrCenter + atrVal * multInner, "Upper Inner", color.teal, 1)
+plot(atrCenter - atrVal * multInner, "Lower Inner", color.teal, 1)

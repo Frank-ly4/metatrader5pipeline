@@ -1,0 +1,51 @@
+//@version=6
+indicator(title="McGinley DMA Indicator with ATR Bands", shorttitle="McGinley DMA", overlay=true)
+
+// Function to calculate McGinley Dynamic Moving Average
+mcginley(source, length) =>
+    var float prevDMA = na
+    coeff = 0.6
+    if na(prevDMA)
+        prevDMA := source
+    prevDMA := prevDMA + (source - prevDMA) / (length * math.pow(source / prevDMA, coeff))
+    prevDMA
+
+// Inputs for McGinley DMA
+group1 = "DMA Settings"
+lengthMA1 = input.int(13, minval=1, title="Fast DMA Length", group=group1)
+lengthMA2 = input.int(21, minval=1, title="Slow DMA Length", group=group1)
+sourceMA = input.source(close, title="Source", group=group1)
+
+// ATR Band Settings
+group2 = "ATR Band Settings"
+atrLength = input.int(14, minval=1, title="ATR Length", group=group2)
+atrMultiplierInner = input.float(1.2, title="ATR Inner Band Multiplier", group=group2)
+atrMultiplierOuter = input.float(2.0, title="ATR Outer Band Multiplier", group=group2)
+
+// Calculate McGinley DMA
+fastDMA = mcginley(sourceMA, lengthMA1)
+slowDMA = mcginley(sourceMA, lengthMA2)
+
+// Calculate ATR and Bands
+atr = ta.atr(atrLength)
+upperBandInner = fastDMA + atr * atrMultiplierInner
+lowerBandInner = fastDMA - atr * atrMultiplierInner
+upperBandOuter = fastDMA + atr * atrMultiplierOuter
+lowerBandOuter = fastDMA - atr * atrMultiplierOuter
+
+// Plotting McGinley DMA
+plot(fastDMA, color=color.new(color.green, 0), title="Fast DMA")
+plot(slowDMA, color=color.new(color.red, 0), title="Slow DMA")
+
+// Plotting ATR Bands
+plot(upperBandOuter, color=color.new(color.blue, 0), title="Upper Outer Band")
+plot(lowerBandOuter, color=color.new(color.blue, 0), title="Lower Outer Band")
+plot(upperBandInner, color=color.new(color.teal, 0), title="Upper Inner Band")
+plot(lowerBandInner, color=color.new(color.teal, 0), title="Lower Inner Band")
+
+// Histogram (Difference between fast and slow DMA)
+histogram = fastDMA - slowDMA
+hline(0, "Zero Line", color=color.gray)
+
+// Debugging/Visual Aid
+bgcolor(histogram > 0 ? color.new(color.green, 90) : color.new(color.red, 90), title="Trend Highlight")

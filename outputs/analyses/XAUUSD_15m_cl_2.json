@@ -1,0 +1,250 @@
+{
+  "analysis_id": "XAUUSD_15m_cl_2",
+  "chart": {
+    "path": "C:\\Users\\frank\\OneDrive\\Desktop\\opt_4\\4.2\\4.2.5 - After trying to fix ratios 090925\\data\\active_charts\\XAUUSD_15m_cl_2.csv",
+    "name": "XAUUSD_15m_cl_2"
+  },
+  "regime_params": {
+    "momentum_len": 20,
+    "vol_len": 20,
+    "trend_threshold": 0.0,
+    "use_mcg_trend": true,
+    "hma_len": 20,
+    "hysteresis": 2
+  },
+  "summary": {
+    "bars": 126,
+    "start": "2025-09-18T16:30:00",
+    "end": "2025-09-19T23:45:00",
+    "timeframe": "15MIN",
+    "total_return_pct": 1.514283353075685,
+    "num_segments": 14,
+    "avg_segment_bars": 9.0,
+    "median_segment_bars": 6.0,
+    "max_segment_bars": 25,
+    "trend_distribution": {
+      "trend_up": {
+        "bars": 111,
+        "pct": 88.09523809523809
+      },
+      "trend_down": {
+        "bars": 13,
+        "pct": 10.317460317460316
+      },
+      "range": {
+        "bars": 2,
+        "pct": 1.5873015873015872
+      }
+    },
+    "vol_distribution": {
+      "low": {
+        "bars": 42,
+        "pct": 33.33333333333333
+      },
+      "mid": {
+        "bars": 41,
+        "pct": 32.53968253968254
+      },
+      "high": {
+        "bars": 43,
+        "pct": 34.12698412698413
+      }
+    },
+    "top_best_segments": [
+      {
+        "start": "2025-09-19T17:00:00",
+        "end": "2025-09-19T21:15:00",
+        "bars": 18,
+        "regime": "trend_up_high_vol",
+        "close_start": 3660.64,
+        "close_end": 3682.17,
+        "return_pct": 0.5881485204773051
+      },
+      {
+        "start": "2025-09-18T16:30:00",
+        "end": "2025-09-18T16:45:00",
+        "bars": 2,
+        "regime": "range_mid_vol",
+        "close_start": 3630.1,
+        "close_end": 3642.29,
+        "return_pct": 0.3358034213933436
+      },
+      {
+        "start": "2025-09-19T02:45:00",
+        "end": "2025-09-19T04:00:00",
+        "bars": 6,
+        "regime": "trend_down_low_vol",
+        "close_start": 3640.24,
+        "close_end": 3648.28,
+        "return_pct": 0.22086455838077335
+      }
+    ],
+    "top_worst_segments": [
+      {
+        "start": "2025-09-19T13:15:00",
+        "end": "2025-09-19T14:45:00",
+        "bars": 7,
+        "regime": "trend_up_mid_vol",
+        "close_start": 3656.91,
+        "close_end": 3648.4,
+        "return_pct": -0.23271012959027448
+      },
+      {
+        "start": "2025-09-19T15:00:00",
+        "end": "2025-09-19T15:30:00",
+        "bars": 3,
+        "regime": "trend_down_mid_vol",
+        "close_start": 3650.66,
+        "close_end": 3647.36,
+        "return_pct": -0.09039461357671641
+      },
+      {
+        "start": "2025-09-18T21:45:00",
+        "end": "2025-09-19T02:30:00",
+        "bars": 20,
+        "regime": "trend_up_low_vol",
+        "close_start": 3641.38,
+        "close_end": 3638.11,
+        "return_pct": -0.08980111935584789
+      }
+    ],
+    "regime_avg_ret_per_bar": {
+      "range_mid_vol": 0.1679017106966718,
+      "trend_down_low_vol": 0.0437189391638763,
+      "trend_up_high_vol": 0.016025909435470814,
+      "trend_up_mid_vol": 0.002605563251846588,
+      "trend_up_low_vol": -0.00026200555023256643,
+      "trend_down_mid_vol": -0.03013153785890547
+    }
+  },
+  "segments": [
+    {
+      "start": "2025-09-18T16:30:00",
+      "end": "2025-09-18T16:45:00",
+      "bars": 2,
+      "regime": "range_mid_vol",
+      "close_start": 3630.1,
+      "close_end": 3642.29,
+      "return_pct": 0.3358034213933436
+    },
+    {
+      "start": "2025-09-18T17:00:00",
+      "end": "2025-09-18T21:30:00",
+      "bars": 19,
+      "regime": "trend_up_mid_vol",
+      "close_start": 3640.75,
+      "close_end": 3641.81,
+      "return_pct": 0.029114880175784563
+    },
+    {
+      "start": "2025-09-18T21:45:00",
+      "end": "2025-09-19T02:30:00",
+      "bars": 20,
+      "regime": "trend_up_low_vol",
+      "close_start": 3641.38,
+      "close_end": 3638.11,
+      "return_pct": -0.08980111935584789
+    },
+    {
+      "start": "2025-09-19T02:45:00",
+      "end": "2025-09-19T04:00:00",
+      "bars": 6,
+      "regime": "trend_down_low_vol",
+      "close_start": 3640.24,
+      "close_end": 3648.28,
+      "return_pct": 0.22086455838077335
+    },
+    {
+      "start": "2025-09-19T04:15:00",
+      "end": "2025-09-19T05:30:00",
+      "bars": 6,
+      "regime": "trend_up_low_vol",
+      "close_start": 3647.61,
+      "close_end": 3646.43,
+      "return_pct": -0.03234994969310012
+    },
+    {
+      "start": "2025-09-19T05:45:00",
+      "end": "2025-09-19T06:45:00",
+      "bars": 5,
+      "regime": "trend_up_mid_vol",
+      "close_start": 3647.43,
+      "close_end": 3653.67,
+      "return_pct": 0.17107936272937607
+    },
+    {
+      "start": "2025-09-19T07:00:00",
+      "end": "2025-09-19T13:00:00",
+      "bars": 25,
+      "regime": "trend_up_high_vol",
+      "close_start": 3659.13,
+      "close_end": 3658.56,
+      "return_pct": -0.01557747333382764
+    },
+    {
+      "start": "2025-09-19T13:15:00",
+      "end": "2025-09-19T14:45:00",
+      "bars": 7,
+      "regime": "trend_up_mid_vol",
+      "close_start": 3656.91,
+      "close_end": 3648.4,
+      "return_pct": -0.23271012959027448
+    },
+    {
+      "start": "2025-09-19T15:00:00",
+      "end": "2025-09-19T15:30:00",
+      "bars": 3,
+      "regime": "trend_down_mid_vol",
+      "close_start": 3650.66,
+      "close_end": 3647.36,
+      "return_pct": -0.09039461357671641
+    },
+    {
+      "start": "2025-09-19T15:45:00",
+      "end": "2025-09-19T16:30:00",
+      "bars": 4,
+      "regime": "trend_down_low_vol",
+      "close_start": 3649.23,
+      "close_end": 3656.62,
+      "return_pct": 0.2025084743904948
+    },
+    {
+      "start": "2025-09-19T16:45:00",
+      "end": "2025-09-19T16:45:00",
+      "bars": 1,
+      "regime": "trend_up_mid_vol",
+      "close_start": 3663.31,
+      "close_end": 3663.31,
+      "return_pct": 0.0
+    },
+    {
+      "start": "2025-09-19T17:00:00",
+      "end": "2025-09-19T21:15:00",
+      "bars": 18,
+      "regime": "trend_up_high_vol",
+      "close_start": 3660.64,
+      "close_end": 3682.17,
+      "return_pct": 0.5881485204773051
+    },
+    {
+      "start": "2025-09-19T21:30:00",
+      "end": "2025-09-19T22:15:00",
+      "bars": 4,
+      "regime": "trend_up_mid_vol",
+      "close_start": 3682.1,
+      "close_end": 3683.65,
+      "return_pct": 0.04209554330409926
+    },
+    {
+      "start": "2025-09-19T22:30:00",
+      "end": "2025-09-19T23:45:00",
+      "bars": 6,
+      "regime": "trend_up_low_vol",
+      "close_start": 3683.06,
+      "close_end": 3685.07,
+      "return_pct": 0.05457418559566829
+    }
+  ],
+  "generated_at": "20251018_232321",
+  "version": "analysis_v1"
+}

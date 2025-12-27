@@ -1,0 +1,177 @@
+//@version=6
+strategy("McGinley DMA Bands v8.6.1 (WIP)", overlay=true, calc_on_every_tick=false, initial_capital=500)
+
+// ===== README =====
+// **v8.6.1:**
+// 1. All order sizing and leverage inputs have been removed from the script. Use the Properties tab to set % of equity and margin (for leverage).
+// 2. The script will use the Properties tab settings for all trades. Do not set custom qty in the script.
+// 3. All other logic remains unchanged.
+//
+// **v8.5.4:**
+// 1. Restored chart label (flag) for leverage and margin percent, with a toggle to show/hide it.
+// 2. Restored order size warning flag, with a toggle to show/hide it.
+// 3. Leverage/margin functionality is informational only for now.
+//
+// **v8.5.3:**
+// 1. Leverage input remains in the Inputs tab (TradingView limitation), but now displays the calculated margin percent as an info line directly below using input.info().
+// 2. No chart label is shown. This is the closest possible to inline display in TradingView.
+//
+// **v8.5.2:**
+// 1. Plots angleInDegrees for visual inspection; added toggle input to enable/disable angle filter.
+// 2. Added user-friendly leverage input; displays required margin percent for Properties tab.
+// 3. Added warning label if calculated order size is very small (may be rounded to zero by TradingView).
+// 4. Added notes about TradingView's order rounding and symbol minimums for high-priced assets like GOLD.
+//
+// **v8.5.1:**
+// 1. Removed redundant pyramiding input; now controlled only by Properties tab.
+// 2. Reviewed and ensured both long and short entry/exit logic is present and correct per Sunny's strategy principles.
+// 3. Investigated initial capital effect: confirmed that entry logic does not block trades for low capital; any further issues are due to TradingView's internal order rounding, not script logic.
+//
+// **v8.5:**
+// 1. Refactored entry conditions to be state-based (is price < band) instead of event-based (price crossing band).
+// 2. This change is intended to fix the pyramiding logic and the "no data" issue with low capital.
+//
+// **v8.4.1:**
+// 1. Enabled Pyramiding via an input.
+// 2. Added Long/Short trade direction toggles.
+//
+// **v8.4:** Re-created file to resolve potential rendering/caching issue with overlay.
+//
+// v8.3 Change: Implemented a manual EMA calculation in f_dma() to support dynamic lengths
+// and fixed the incorrect variable assignment operators for channel MAs.
+//
+// v8.2 Change: Replaced the f_mcginley() function with a new Volatility-Adjusted DMA (f_dma)
+// to more closely approximate the behavior of the proprietary Sunny DMA, which adjusts its
+// length based on market volatility.
+//
+// This is the clean, corrected base version of the strategy, fully compliant with Pine Script v6.
+//
+// Key Fixes:
+// 1.  **Corrected v6 Syntax:** Fixed all syntax errors, including `var` assignments and `strategy.exit` calls.
+// 2.  **Standardized Sizing:** Removed all custom sizing logic to use TradingView's built-in controls.
+// 3.  **Fixed "No Data" Bug:** Corrected the contradictory entry logic to ensure trades are generated.
+// 4.  **Corrected McGinley Formula:** Updated the DMA calculation to use the standard power of 4.
+
+// ===== INPUTS =====
+// DMA Settings
+groupDMA          = "DMA Settings"
+dmaSource         = input.source(close, "Source", group=groupDMA)
+fastAtrLen        = input.int(14, "Fast DMA ATR Length", group=groupDMA)
+fastMinLen        = input.int(5, "Fast DMA Min Length", group=groupDMA)
+fastMaxLen        = input.int(20, "Fast DMA Max Length", group=groupDMA)
+slowAtrLen        = input.int(14, "Slow DMA ATR Length", group=groupDMA)
+slowMinLen        = input.int(10, "Slow DMA Min Length", group=groupDMA)
+slowMaxLen        = input.int(50, "Slow DMA Max Length", group=groupDMA)
+
+// ATR Band Settings
+groupATR        = "ATR Band Settings"
+atrLength       = input.int(14, "ATR Length", group=groupATR)
+innerMultiplier = input.float(1.2, "ATR Inner Multiplier", group=groupATR)
+outerMultiplier = input.float(2.0, "ATR Outer Multiplier", group=groupATR)
+
+// Trend & Risk Management
+groupTrend      = "Trend Settings"
+trendAngleThreshold = input.float(6.0, "DMA Angle Threshold (Degrees)")
+
+groupTrading = "Trading Controls"
+allowLongs   = input.bool(true, "Allow Long Trades", group=groupTrading)
+allowShorts  = input.bool(false, "Allow Short Trades", group=groupTrading)
+useAngleFilter = input.bool(false, "Use Angle Filter? (DMA Angle Threshold)", group=groupTrading)
+
+// ===== CORE LOGIC =====
+// Volatility-Adjusted Dynamic Moving Average (f_dma)
+f_dma(src, minLength, maxLength, atrLen) =>
+    // 1. Calculate normalized volatility (ATR as % of close).
+    // The value is clamped to prevent extreme results in unusual market conditions.
+    volatility = ta.atr(atrLen) / src
+    clampedVolatility = math.max(0.001, volatility) // Avoid division by zero or negative values
+
+    // 2. Determine a volatility index. We look at the 100-bar range of volatility.
+    // A value of 1 means current volatility is at a 100-bar high.
+    // A value of 0 means current volatility is at a 100-bar low.
+    volatilityRange = ta.highest(clampedVolatility, 100) - ta.lowest(clampedVolatility, 100)
+    volatilityIndex = (clampedVolatility - ta.lowest(clampedVolatility, 100)) / math.max(volatilityRange, 1e-9) // Avoid division by zero
+
+    // 3. Interpolate the length. High volatility -> minLength, Low volatility -> maxLength.
+    // This makes the average more responsive in fast markets and smoother in quiet markets.
+    float dynamicLength = maxLength - (maxLength - minLength) * volatilityIndex
+    int finalLength = int(math.round(dynamicLength))
+
+    // 4. Calculate the EMA manually using the dynamic length, as built-in MAs require a constant length.
+    var float dma = na
+    float alpha = 2.0 / (finalLength + 1)
+    dma := na(dma[1]) ? src : alpha * src + (1 - alpha) * nz(dma[1])
+    dma
+
+fastDMA = f_dma(dmaSource, fastMinLen, fastMaxLen, fastAtrLen)
+slowDMA = f_dma(dmaSource, slowMinLen, slowMaxLen, slowAtrLen)
+atr = ta.atr(atrLength)
+
+// Asymmetrical ATR Bands
+isUptrend = fastDMA > slowDMA
+float channelUpperMA = na
+float channelLowerMA = na
+if isUptrend
+    channelUpperMA := fastDMA
+    channelLowerMA := slowDMA
+else
+    channelUpperMA := slowDMA
+    channelLowerMA := fastDMA
+
+upperOuter = channelUpperMA + atr * outerMultiplier
+upperInner = channelUpperMA + atr * innerMultiplier
+lowerInner = channelLowerMA - atr * innerMultiplier
+lowerOuter = channelLowerMA - atr * outerMultiplier
+
+// Trend Confirmation using Normalized Linear Regression Angle
+slope = ta.linreg(fastDMA, 5, 0)
+normalizedSlope = slope / atr
+angleInDegrees = math.atan(normalizedSlope) * (180 / math.pi)
+
+// Plot angle for debugging
+plot(angleInDegrees, title="DMA Angle (Degrees)", color=color.new(color.orange, 0), linewidth=1, display=display.data_window)
+
+isBullishTrend = useAngleFilter ? angleInDegrees > trendAngleThreshold : true
+isBearishTrend = useAngleFilter ? angleInDegrees < -trendAngleThreshold : true
+
+// ===== ENTRY CONDITIONS =====
+// Loosened logic: trigger on a touch of the OUTER band
+longEntry  = isBullishTrend and (low <= lowerOuter)
+shortEntry = isBearishTrend and (high >= upperOuter)
+
+// ===== EXIT LOGIC =====
+var float trailStop  = na
+var float takeProfit = na
+
+if strategy.position_size > 0
+    trailStop  := math.max(lowerOuter, lowerInner, close - atr * 1.5)
+    takeProfit := upperOuter
+    strategy.exit(id="Long Exit", from_entry="Long", stop=trailStop, limit=takeProfit)
+else if strategy.position_size < 0
+    trailStop  := math.min(upperOuter, upperInner, close + atr * 1.5)
+    takeProfit := lowerOuter
+    strategy.exit(id="Short Exit", from_entry="Short", stop=trailStop, limit=takeProfit)
+
+// ===== EXECUTION =====
+if longEntry and allowLongs
+    strategy.entry("Long", strategy.long)
+
+if shortEntry and allowShorts
+    strategy.entry("Short", strategy.short)
+
+// ===== PLOTS =====
+plot(fastDMA,    title="Fast DMA",    color=color.new(color.green,  0))
+plot(slowDMA,    title="Slow DMA",    color=color.new(color.red,    0))
+plot(upperOuter, title="Upper Outer", color=color.new(color.blue,   0), linewidth=2)
+plot(lowerOuter, title="Lower Outer", color=color.new(color.blue,   0), linewidth=2)
+plot(upperInner, title="Upper Inner", color=color.new(color.teal,   0), linewidth=2)
+plot(lowerInner, title="Lower Inner", color=color.new(color.teal,   0), linewidth=2)
+
+// Background color for trend
+bgColor = if isBullishTrend
+    color.new(color.green, 90)
+else if isBearishTrend
+    color.new(color.red, 90)
+else
+    color.new(color.gray, 90)
+bgcolor(bgColor) 

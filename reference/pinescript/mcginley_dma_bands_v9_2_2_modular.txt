@@ -1,0 +1,469 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © franklincarnes
+
+//@version=6
+strategy("McGinley DMA Bands v9.2.2 Modular",
+         overlay=true,
+         calc_on_every_tick=true,
+         pyramiding=3,
+         initial_capital=500,
+         default_qty_type=strategy.fixed,
+         default_qty_value=1,
+         commission_value=0.025,
+         commission_type=strategy.commission.percent)
+
+// ===== CHANGELOG =====
+// v9.2.2: Implemented Two-Regime Logic using ADX
+// - Added ADX indicator to detect market regime (Trending vs. Ranging).
+// - Strategy now intelligently switches between entry logic based on the regime.
+//   - Trending Market: Uses existing Hybrid Entry model (Momentum + Pullback).
+//   - Ranging Market: Uses a new mean-reversion logic (buy at lower band, sell at upper).
+// - Changed default position sizing to 15% of equity.
+// v9.2.1: Final bug fixes
+// - Corrected `syminfo.minqty` usage, which was causing "undeclared identifier" errors.
+// - Renamed function parameters to resolve all shadowing warnings with built-in variables.
+// - Fixed "end of line without line continuation" error with correct indentation.
+// v9.1: Modularized architecture while preserving all v9.0 functionality
+// - Separated core calculations, entry logic, exit logic, risk management, and visualization
+// - No functional changes, only structural improvements for maintainability
+
+// ===== INPUTS =====
+// DMA Settings
+groupDMA          = "DMA Settings"
+dmaSource         = input.source(close, "Source", group=groupDMA)
+fastAtrLen        = input.int(14, "Fast DMA ATR Length", group=groupDMA)
+fastMinLen        = input.int(5, "Fast DMA Min Length", group=groupDMA)
+fastMaxLen        = input.int(20, "Fast DMA Max Length", group=groupDMA)
+slowAtrLen        = input.int(14, "Slow DMA ATR Length", group=groupDMA)
+slowMinLen        = input.int(10, "Slow DMA Min Length", group=groupDMA)
+slowMaxLen        = input.int(50, "Slow DMA Max Length", group=groupDMA)
+
+// ATR Band Settings
+groupATR        = "ATR Band Settings"
+atrLength       = input.int(14, "ATR Length", group=groupATR)
+upperOuterMult = input.float(2.0, "Upper Outer Multiplier", group=groupATR, inline="upper")
+lowerOuterMult = input.float(2.0, "Lower Outer Multiplier", group=groupATR, inline="lower")
+upperInnerMult = input.float(1.2, "Upper Inner Multiplier", group=groupATR, inline="upper")
+lowerInnerMult = input.float(1.2, "Lower Inner Multiplier", group=groupATR, inline="lower")
+
+// Trend & Risk Management
+groupTrend      = "Trend Settings"
+trendAngleThreshold = input.float(6.0, "DMA Angle Threshold (Degrees)")
+useRegimeFilter = input.bool(true, "Use ADX Regime Filter?", group=groupTrend)
+adxLength       = input.int(14, "ADX Length", group=groupTrend)
+adxThreshold    = input.int(20, "ADX Threshold (Trending)", group=groupTrend)
+
+
+groupTrading = "Trading Controls"
+orderSizePercent = input.float(15.0, "Order Size (% of Equity)", group=groupTrading) / 100.0
+allowLongs   = input.bool(true, "Allow Long Trades", group=groupTrading)
+allowShorts  = input.bool(true, "Allow Short Trades", group=groupTrading)
+useAngleFilter = input.bool(false, "Use Angle Filter? (DMA Angle Threshold)", group=groupTrading)
+useHybridEntry = input.bool(true, "Use Hybrid Entry Logic?", group=groupTrading, tooltip="Enable aggressive momentum and confirmation pullback entries")
+
+// Advanced Risk Management
+groupRisk = "Risk Management"
+useVolatilityScaling = input.bool(true, "Use Volatility-Based Position Sizing?", group=groupRisk)
+maxDrawdownPercent = input.float(20.0, "Max Drawdown % (Pause Trading)", minval=5, maxval=50, group=groupRisk) / 100.0
+useTimeBasedExit = input.bool(false, "Use Time-Based Exit?", group=groupRisk)
+maxBarsSinceEntry = input.int(50, "Max Bars Since Entry", minval=10, maxval=200, group=groupRisk)
+usePartialExits = input.bool(false, "Use Partial Position Exits?", group=groupRisk)
+partialExitPercent = input.float(50.0, "Partial Exit %", minval=10, maxval=90, group=groupRisk) / 100.0
+
+// =====================================
+// MODULE 1: CORE CALCULATIONS
+// =====================================
+
+// Volatility-Adjusted Dynamic Moving Average
+f_dma(src, minLength, maxLength, atrLen) =>
+    volatility = ta.atr(atrLen) / src
+    clampedVolatility = math.max(0.001, volatility)
+    volatilityRange = ta.highest(clampedVolatility, 100) - ta.lowest(clampedVolatility, 100)
+    volatilityIndex = (clampedVolatility - ta.lowest(clampedVolatility, 100)) / math.max(volatilityRange, 1e-9)
+    float dynamicLength = maxLength - (maxLength - minLength) * volatilityIndex
+    int finalLength = int(math.round(dynamicLength))
+    
+    var float dma = na
+    float alpha = 2.0 / (finalLength + 1)
+    dma := na(dma[1]) ? src : alpha * src + (1 - alpha) * nz(dma[1])
+    dma
+
+// Calculate ATR Bands
+f_calculateBands(upperMA, lowerMA, atr, upperOuterMult, upperInnerMult, lowerOuterMult, lowerInnerMult) =>
+    upperOuter = upperMA + atr * upperOuterMult
+    upperInner = upperMA + atr * upperInnerMult
+    lowerInner = lowerMA - atr * lowerInnerMult
+    lowerOuter = lowerMA - atr * lowerOuterMult
+    [upperOuter, upperInner, lowerInner, lowerOuter]
+
+// Trend Detection
+f_detectTrend(fastDMA, slowDMA, atr, angleThreshold, useFilter) =>
+    isUptrend = fastDMA > slowDMA
+    slope = ta.linreg(fastDMA, 5, 0)
+    normalizedSlope = slope / atr
+    angleInDegrees = math.atan(normalizedSlope) * (180 / math.pi)
+    isDMAFlat = math.abs(angleInDegrees) < angleThreshold
+    
+    isBullishTrend = useFilter ? not isDMAFlat and angleInDegrees > 0 : true
+    isBearishTrend = useFilter ? not isDMAFlat and angleInDegrees < 0 : true
+    
+    [isUptrend, angleInDegrees, isDMAFlat, isBullishTrend, isBearishTrend]
+
+// Regime Detection using ADX
+f_detectRegime(adxLength, adxThreshold) =>
+    [diPos, diNeg, adx] = ta.dmi(adxLength, adxLength)
+    isTrending = adx > adxThreshold
+    isRanging = not isTrending
+    [isTrending, isRanging, adx]
+
+// =====================================
+// MODULE 2: ENTRY LOGIC
+// =====================================
+
+// Wait for Proof Entry Logic
+f_checkEntry(highPrice, lowPrice, closePrice, openPrice, upperOuter, lowerOuter, isBullishTrend, isBearishTrend) =>
+    longCrossover = ta.crossunder(lowPrice, lowerOuter)
+    shortCrossover = ta.crossover(highPrice, upperOuter)
+    
+    longEntry = isBullishTrend and longCrossover[1] and closePrice > openPrice
+    shortEntry = isBearishTrend and shortCrossover[1] and closePrice < openPrice
+    
+    [longEntry, shortEntry]
+
+// Enhanced Hybrid Entry Logic
+f_checkHybridEntry(highPrice, lowPrice, closePrice, openPrice, upperOuter, lowerOuter, 
+                   upperInner, lowerInner, fastDMA, slowDMA,
+                   angleInDegrees, angleThreshold, isBullishTrend, isBearishTrend) =>
+    
+    // Aggressive Entry Conditions (High Momentum)
+    strongBullishMomentum = angleInDegrees > angleThreshold * 1.5  // 1.5x threshold for strong momentum
+    strongBearishMomentum = angleInDegrees < -angleThreshold * 1.5
+    
+    // Band touches for aggressive entries
+    longBandTouch = lowPrice <= lowerOuter
+    shortBandTouch = highPrice >= upperOuter
+    
+    // Aggressive entries: Strong momentum + band touch (no wait for proof needed)
+    aggressiveLongEntry = strongBullishMomentum and longBandTouch and isBullishTrend
+    aggressiveShortEntry = strongBearishMomentum and shortBandTouch and isBearishTrend
+    
+    // Confirmation Entry Conditions (Established Trend)
+    establishedUptrend = fastDMA > slowDMA
+    establishedDowntrend = fastDMA < slowDMA
+    
+    // Pullback detection
+    dmaMidline = (fastDMA + slowDMA) / 2
+    bullishPullback = establishedUptrend and lowPrice <= dmaMidline and closePrice > dmaMidline
+    bearishPullback = establishedDowntrend and highPrice >= dmaMidline and closePrice < dmaMidline
+    
+    // Confirmation entries: Established trend + pullback to midline
+    confirmationLongEntry = bullishPullback and isBullishTrend
+    confirmationShortEntry = bearishPullback and isBearishTrend
+    
+    // Original Wait for Proof logic as fallback
+    longCrossover = ta.crossunder(lowPrice, lowerOuter)
+    shortCrossover = ta.crossover(highPrice, upperOuter)
+    waitForProofLong = isBullishTrend and longCrossover[1] and closePrice > openPrice
+    waitForProofShort = isBearishTrend and shortCrossover[1] and closePrice < openPrice
+    
+    // Combine all entry types
+    longEntry = aggressiveLongEntry or confirmationLongEntry or waitForProofLong
+    shortEntry = aggressiveShortEntry or confirmationShortEntry or waitForProofShort
+    
+    // Return entry signals and type for debugging
+    entryType = aggressiveLongEntry or aggressiveShortEntry ? "Aggressive" :
+                 (confirmationLongEntry or confirmationShortEntry) ? "Confirmation" :
+                 (waitForProofLong or waitForProofShort) ? "Wait for Proof" : "None"
+    
+    [longEntry, shortEntry, entryType]
+
+// Ranging Market Entry Logic
+f_checkRangingEntry(lowPrice, highPrice, lowerOuter, upperOuter) =>
+    rangingLongEntry = ta.crossunder(lowPrice, lowerOuter)
+    rangingShortEntry = ta.crossover(highPrice, upperOuter)
+    [rangingLongEntry, rangingShortEntry]
+
+// =====================================
+// MODULE 3: RISK MANAGEMENT
+// =====================================
+
+// Position Sizing Calculation
+f_calculatePositionSize(equity, riskPercent, price) =>
+    trade_value_usd = equity * riskPercent
+    qty_to_trade = trade_value_usd / price
+    step_qty = syminfo.mintick
+    rounded_qty = math.round(qty_to_trade / step_qty) * step_qty
+    rounded_qty
+
+// Advanced Position Sizing with Volatility Scaling
+f_calculateVolatilityAdjustedSize(equity, baseRiskPercent, price, atr, atrLength) =>
+    // Calculate volatility percentile
+    atrPercent = atr / price
+    atrPercentile = ta.percentrank(atrPercent, 100)
+    
+    // Scale position size inversely with volatility
+    // High volatility (percentile > 80) = smaller position
+    // Low volatility (percentile < 20) = larger position
+    volatilityMultiplier = 1.5 - (atrPercentile / 100)
+    adjustedRiskPercent = baseRiskPercent * volatilityMultiplier
+    
+    // Ensure we don't exceed base risk
+    finalRiskPercent = math.min(adjustedRiskPercent, baseRiskPercent * 1.5)
+    
+    f_calculatePositionSize(equity, finalRiskPercent, price)
+
+// Drawdown Calculation
+f_calculateDrawdown(equity, initialCapital) =>
+    highWaterMark = ta.highest(equity, 252) // Rolling 1-year high
+    currentDrawdown = (highWaterMark - equity) / highWaterMark
+    maxDrawdownReached = currentDrawdown > maxDrawdownPercent
+    [currentDrawdown, maxDrawdownReached]
+
+// Time-Based Exit Check
+f_checkTimeExit(barsSinceEntry, maxBars) =>
+    barsSinceEntry >= maxBars
+
+// =====================================
+// MODULE 4: EXIT LOGIC
+// =====================================
+
+// Multi-Stage Exit Management
+f_manageExit(positionSize, prevPositionSize, closePrice, fastDMA, slowDMA, 
+             upperOuter, upperInner, lowerInner, lowerOuter,
+             prevStopLevel, prevMidlineCrossed) =>
+    
+    var float stopLevel = prevStopLevel
+    var bool midlineCrossed = prevMidlineCrossed
+    
+    isNewTrade = positionSize != prevPositionSize
+    
+    if isNewTrade
+        if positionSize > 0
+            stopLevel := lowerOuter
+            midlineCrossed := false
+        else if positionSize < 0
+            stopLevel := upperOuter
+            midlineCrossed := false
+    else if positionSize > 0
+        dmaMidline = (fastDMA + slowDMA) / 2
+        if not midlineCrossed and closePrice > dmaMidline
+            midlineCrossed := true
+        
+        float newStop = na
+        if midlineCrossed
+            newStop := math.max(dmaMidline, lowerInner)
+        else
+            newStop := lowerOuter
+        
+        stopLevel := math.max(stopLevel, newStop)
+    else if positionSize < 0
+        dmaMidline = (fastDMA + slowDMA) / 2
+        if not midlineCrossed and closePrice < dmaMidline
+            midlineCrossed := true
+        
+        float newStop = na
+        if midlineCrossed
+            newStop := math.min(dmaMidline, upperInner)
+        else
+            newStop := upperOuter
+        
+        stopLevel := math.min(stopLevel, newStop)
+    
+    if positionSize == 0
+        stopLevel := na
+        midlineCrossed := false
+    
+    [stopLevel, midlineCrossed]
+
+// Volatility-Adjusted Target Calculation
+f_calculateVolatilityTarget(entryPrice, atr, isLong) =>
+    // Target is 2-3x ATR from entry, scaled by volatility
+    atrMultiplier = 2.5
+    target = isLong ? entryPrice + (atr * atrMultiplier) : entryPrice - (atr * atrMultiplier)
+    target
+
+// =====================================
+// MAIN STRATEGY EXECUTION
+// =====================================
+
+// Core Calculations
+fastDMA = f_dma(dmaSource, fastMinLen, fastMaxLen, fastAtrLen)
+slowDMA = f_dma(dmaSource, slowMinLen, slowMaxLen, slowAtrLen)
+atr = ta.atr(atrLength)
+
+// Trend & Regime Detection
+[isUptrend, angleInDegrees, isDMAFlat, isBullishTrend, isBearishTrend] = 
+     f_detectTrend(fastDMA, slowDMA, atr, trendAngleThreshold, useAngleFilter)
+[isTrendingRegime, isRangingRegime, adxValue] = f_detectRegime(adxLength, adxThreshold)
+
+// Channel MAs
+float channelUpperMA = isUptrend ? fastDMA : slowDMA
+float channelLowerMA = isUptrend ? slowDMA : fastDMA
+
+// Band Calculations
+[upperOuter, upperInner, lowerInner, lowerOuter] = 
+     f_calculateBands(channelUpperMA, channelLowerMA, atr, 
+                     upperOuterMult, upperInnerMult, lowerOuterMult, lowerInnerMult)
+
+// --- ENTRY LOGIC EXECUTION ---
+
+// Determine entry signals based on market regime
+var trendingLongEntry = false
+var trendingShortEntry = false
+var trendingEntryType = "Disabled"
+
+var rangingLongEntry = false
+var rangingShortEntry = false
+
+if useRegimeFilter
+    if isTrendingRegime
+        // In a trending market, use the hybrid entry logic
+        [tLong, tShort, tType] = f_checkHybridEntry(high, low, close, open, upperOuter, lowerOuter,
+             upperInner, lowerInner, fastDMA, slowDMA,
+             angleInDegrees, trendAngleThreshold, isBullishTrend, isBearishTrend)
+        trendingLongEntry := tLong
+        trendingShortEntry := tShort
+        trendingEntryType := tType
+    else // isRangingRegime
+        // In a ranging market, use the simple reversal logic
+        [rLong, rShort] = f_checkRangingEntry(low, high, lowerOuter, upperOuter)
+        rangingLongEntry := rLong
+        rangingShortEntry := rShort
+        trendingEntryType := "Ranging" // Update status
+else
+    // If filter is disabled, use the hybrid logic by default
+    [tLong, tShort, tType] = f_checkHybridEntry(high, low, close, open, upperOuter, lowerOuter,
+         upperInner, lowerInner, fastDMA, slowDMA,
+         angleInDegrees, trendAngleThreshold, isBullishTrend, isBearishTrend)
+    trendingLongEntry := tLong
+    trendingShortEntry := tShort
+    trendingEntryType := tType
+
+// Combine final entry signals
+finalLongEntry = trendingLongEntry or rangingLongEntry
+finalShortEntry = trendingShortEntry or rangingShortEntry
+
+// Position Sizing
+tradeQty = useVolatilityScaling ? 
+     f_calculateVolatilityAdjustedSize(strategy.equity, orderSizePercent, close, atr, atrLength) :
+     f_calculatePositionSize(strategy.equity, orderSizePercent, close)
+
+// Drawdown Check
+[currentDrawdown, pauseTrading] = f_calculateDrawdown(strategy.equity, strategy.initial_capital)
+
+// Track bars since entry
+var int barsSinceEntry = 0
+if strategy.position_size != 0
+    if strategy.position_size != strategy.position_size[1]
+        barsSinceEntry := 0
+    else
+        barsSinceEntry := barsSinceEntry + 1
+else
+    barsSinceEntry := 0
+
+// Check time-based exit
+timeExit = useTimeBasedExit and f_checkTimeExit(barsSinceEntry, maxBarsSinceEntry)
+
+// Exit Management (using persistent variables)
+var float stopLevel = na
+var bool midlineCrossed = false
+
+[newStopLevel, newMidlineCrossed] = 
+     f_manageExit(strategy.position_size, strategy.position_size[1], close,
+                 fastDMA, slowDMA, upperOuter, upperInner, lowerInner, lowerOuter,
+                 stopLevel, midlineCrossed)
+
+stopLevel := newStopLevel
+midlineCrossed := newMidlineCrossed
+
+// Trade Execution
+if (finalLongEntry and allowLongs and strategy.position_size == 0 and not pauseTrading)
+    strategy.entry("Long", strategy.long, qty=tradeQty)
+
+if (finalShortEntry and allowShorts and strategy.position_size == 0 and not pauseTrading)
+    strategy.entry("Short", strategy.short, qty=tradeQty)
+
+// Enhanced Exit Logic
+if strategy.position_size != 0
+    // Calculate volatility-adjusted target
+    var float entryPrice = na
+    if strategy.position_size != strategy.position_size[1]
+        entryPrice := close
+    
+    volTarget = f_calculateVolatilityTarget(entryPrice, atr, strategy.position_size > 0)
+    
+    // Exit with stop, target, and time-based exit
+    if timeExit
+        strategy.close_all("Time Exit")
+    else if usePartialExits and strategy.position_size == strategy.position_size[1] * 2 // Has not taken partial yet
+        strategy.exit("Partial", qty_percent=partialExitPercent, limit=volTarget, stop=stopLevel)
+    else
+        strategy.exit("SL", stop=stopLevel, limit=volTarget)
+
+// =====================================
+// MODULE 5: VISUALIZATION
+// =====================================
+
+// Dynamic Colors
+dmaBullColor = color.new(#FFBF00, 0) // Gold
+dmaBearColor = color.new(#9A0EEA, 0) // Purple
+fastDMAColor = isUptrend ? dmaBullColor : dmaBearColor
+slowDMAColor = isUptrend ? dmaBearColor : dmaBullColor
+
+outerBandColor = color.new(color.green, 0)
+innerBandColor = color.new(color.teal, 0)
+
+// Plots
+plot(fastDMA, title="Fast DMA", color=fastDMAColor)
+plot(slowDMA, title="Slow DMA", color=slowDMAColor)
+plot(upperOuter, title="Upper Outer", color=outerBandColor, linewidth=2)
+plot(lowerOuter, title="Lower Outer", color=outerBandColor, linewidth=2)
+plot(upperInner, title="Upper Inner", color=innerBandColor, linewidth=2)
+plot(lowerInner, title="Lower Inner", color=innerBandColor, linewidth=2)
+
+// Background
+bgColor = isBullishTrend ? color.new(color.green, 90) : 
+          isBearishTrend ? color.new(color.red, 90) : 
+          color.new(color.gray, 90)
+bgcolor(bgColor)
+
+// Debug Plots
+plot(angleInDegrees, title="DMA Angle (Degrees)", color=color.new(color.orange, 0), 
+     linewidth=1, display=display.data_window)
+plot(adxValue, title="ADX Value", color=color.new(color.purple, 0),
+     linewidth=1, display=display.data_window)
+plot(strategy.position_size != 0 ? stopLevel : na, title="Stop Level", 
+     color=color.new(color.fuchsia, 0), style=plot.style_linebr)
+
+// Status Table
+var table statusTable = table.new(position.top_right, 2, 7, border_width=1)
+
+if barstate.islast
+    statusText = isUptrend ? "Gold on Top" : "Purple on Top"
+    statusColor = isUptrend ? dmaBullColor : dmaBearColor
+    
+    table.cell(statusTable, 0, 0, "Status", bgcolor=color.gray)
+    table.cell(statusTable, 1, 0, statusText, text_color=statusColor, bgcolor=color.gray)
+
+    regimeText = useRegimeFilter ? (isTrendingRegime ? "Trending" : "Ranging") : "N/A"
+    table.cell(statusTable, 0, 1, "Regime", bgcolor=color.gray)
+    table.cell(statusTable, 1, 1, regimeText, bgcolor=color.gray)
+    
+    table.cell(statusTable, 0, 2, "Entry Mode")
+    table.cell(statusTable, 1, 2, useHybridEntry ? trendingEntryType : "Simple")
+    
+    table.cell(statusTable, 0, 3, "Risk Status")
+    riskColor = pauseTrading ? color.red : color.green
+    table.cell(statusTable, 1, 3, pauseTrading ? "PAUSED" : "Active", text_color=riskColor)
+    
+    table.cell(statusTable, 0, 4, "Upper Outer")
+    table.cell(statusTable, 1, 4, str.tostring(upperOuter, format.mintick))
+    
+    table.cell(statusTable, 0, 5, "Upper Inner")
+    table.cell(statusTable, 1, 5, str.tostring(upperInner, format.mintick))
+
+    table.cell(statusTable, 0, 6, "Lower Inner")
+    table.cell(statusTable, 1, 6, str.tostring(lowerInner, format.mintick))
+
+    table.cell(statusTable, 0, 7, "Lower Outer")
+    table.cell(statusTable, 1, 7, str.tostring(lowerOuter, format.mintick)) 

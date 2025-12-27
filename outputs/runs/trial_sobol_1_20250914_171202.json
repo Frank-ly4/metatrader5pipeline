@@ -1,0 +1,57 @@
+{
+  "metadata": {
+    "method": "sobol",
+    "trials_per_chart": 1,
+    "num_charts": 1,
+    "total_trials": 1,
+    "metric": "total_return",
+    "seed": 42,
+    "timestamp": "2025-09-14 17:12:02",
+    "charts_processed": [
+      "chart_cl_1.csv"
+    ],
+    "kfold": 0,
+    "embargo_frac": 0.05,
+    "performance_mode": 1
+  },
+  "results": [
+    {
+      "total_return": -9.741201387583745,
+      "sharpe_ratio": -2.148978864296334,
+      "sortino_ratio": -2.431971644730853,
+      "calmar_ratio": -0.017729564176793198,
+      "max_drawdown": 10.818362923693746,
+      "win_rate": 24.09090909090909,
+      "total_trades": 441,
+      "profit_factor": 0.3528674250361869,
+      "expectancy": -0.22139094048898272,
+      "start_capital": 1000.0,
+      "end_capital": 902.5879861241625,
+      "avg_hold_hours": null,
+      "ulcer_index": 0.08732624510819537,
+      "omega_0": 0.7454352033043256,
+      "omega_fees": 0.14801615369039595,
+      "chart": "chart_cl_1.csv",
+      "trial_id": 1,
+      "method": "sobol",
+      "param_fast_min_len": 10,
+      "param_fast_max_len": 22,
+      "param_slow_min_len": 32,
+      "param_slow_max_len": 48,
+      "param_dma_atr_len": 12,
+      "param_atr_len": 16,
+      "param_upper_outer_mult": 2.2,
+      "param_lower_outer_mult": 2.0,
+      "param_upper_inner_mult": 1.2,
+      "param_lower_inner_mult": 1.0,
+      "param_momentum_len": 14,
+      "param_momentum_threshold": 0.75,
+      "param_momentum_lookback": 75,
+      "param_slope_lookback": 2,
+      "param_rsi_len": 14,
+      "param_rsi_oversold": 30,
+      "param_trailing_atr_mult": 1.0,
+      "trial_uid": "20250914_171202:1"
+    }
+  ]
+}

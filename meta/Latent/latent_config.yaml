@@ -1,0 +1,74 @@
+# Latent pipeline configuration (Desktop workspace)
+
+# Paths
+main_project_root: "C:/Users/frank/Desktop/opt_4/4.2/4.2.4"
+runs_dir: "C:/Users/frank/Desktop/opt_4/4.2/4.2.4/outputs/runs"
+out_dir: "C:/Users/frank/Desktop/Latent"
+
+# Artifacts (written under out_dir)
+features_path: "features/features.parquet"
+models_dir: "models"
+umap_dir: "umap"
+clusters_dir: "clusters"
+surrogate_dir: "surrogate"
+proposals_dir: "proposals"
+cards_dir: "cards"
+registry_dir: "registry"
+
+# Light mode to speed up iterations
+light_mode:
+  max_runs: 2
+  kmeans_k: 5
+  num_per_cluster: 2
+  use_umap: false
+
+# FeatureBuilder
+include_market_features: false
+market_csv: ""
+max_runs: null
+
+# Metrics used for labels/analysis
+metric_columns:
+  - total_return
+  - sharpe_ratio
+  - sortino_ratio
+  - calmar_ratio
+  - max_drawdown
+  - profit_factor
+  - omega_0
+  - omega_fees
+  - ulcer_index
+  - upi
+  - tail_ratio
+  - cvar_95
+  - equity_r2
+  - turnover
+  - time_in_market
+
+# Embedder
+latent_dim: 12
+use_pca: true
+use_umap: true
+umap_n_neighbors: 30
+umap_min_dist: 0.1
+
+# Clusterer
+clusterer: "kmeans"
+hdbscan_min_cluster_size: 30
+hdbscan_min_samples: 10
+kmeans_k: 8
+
+# Surrogate
+surrogate_targets:
+  - sharpe_ratio
+  - upi
+  - calmar_ratio
+score_weights:
+  sharpe_ratio: 0.5
+  upi: 0.3
+  calmar_ratio: 0.2
+
+# Navigator
+num_seed_uids: 10
+num_proposals: 20
+trust_region_scale: 1.0

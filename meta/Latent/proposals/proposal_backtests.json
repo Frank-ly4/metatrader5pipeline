@@ -1,0 +1,14 @@
+[
+  {
+    "chart": "ETHUSDT_15m_cl_1.csv",
+    "cluster_id": 0,
+    "method": "trust_region",
+    "decoded_params": {
+      "fast_min_len": 12,
+      "fast_max_len": 16,
+      "slow_min_len": 31,
+      "slow_max_len": 47,
+      "atr_len": 10
+    },
+    "stats": {
+      "Start": 
