@@ -1,0 +1,155 @@
+{
+  "validation_summary": {
+    "total_items": 39,
+    "must_have_complete": 7,
+    "important_complete": 10,
+    "nice_to_have_complete": 22,
+    "items_flagged": 3,
+    "items_missing": 0,
+    "defaults_used": 8
+  },
+  "flagged_items": [
+    {
+      "item": "USDTHB margin_initial_usd_per_lot",
+      "value": 20000.0,
+      "severity": "high",
+      "reason": "Margin of 20,000 USD per lot is unusually high (typical FX margin is 1,000-3,000 USD/lot for 1:100 leverage). This suggests either: (1) Very low leverage (1:5), (2) High margin requirement for exotic pair, (3) Data entry error.",
+      "verify_with_broker": true,
+      "verification_method": "MQL5: SymbolInfoDouble(\"USDTHB!\", SYMBOL_MARGIN_INITIAL)",
+      "mt5_menu_path": "Market Watch → Right-click USDTHB! → Specification → Trade tab → Initial Margin",
+      "required_before_live": true,
+      "conservative_default_if_wrong": 3000.0
+    },
+    {
+      "item": "Account currency",
+      "value": "USD (inferred)",
+      "severity": "medium",
+      "reason": "Account currency inferred as USD but not explicitly confirmed from MT5",
+      "verify_with_broker": true,
+      "verification_method": "MQL5: AccountInfoString(ACCOUNT_CURRENCY)",
+      "mt5_menu_path": "Tools → Options → Server → Right-click account → Properties → Currency",
+      "required_before_live": true,
+      "conservative_default_if_wrong": "USD"
+    },
+    {
+      "item": "Swap rates",
+      "value": "Conservative defaults used",
+      "severity": "low",
+      "reason": "Swap rates are conservative estimates. Actual swap rates vary daily and should be fetched from MT5",
+      "verify_with_broker": false,
+      "verification_method": "MQL5: SymbolInfoDouble(\"USDSEK!\", SYMBOL_SWAP_LONG) and SYMBOL_SWAP_SHORT",
+      "mt5_menu_path": "Market Watch → Right-click symbol → Specification → Swap tab",
+      "required_before_live": false,
+      "conservative_default_if_wrong": "Current defaults acceptable for simulation"
+    }
+  ],
+  "missing_items_with_defaults": [
+    {
+      "item": "Spread historical data",
+      "default_used": "Session-based median and 95th percentile estimates",
+      "impact": "Simulation accuracy",
+      "priority": "medium",
+      "how_to_obtain": "Log spreads every minute for 1 week, calculate percentiles"
+    },
+    {
+      "item": "Swap rates (actual)",
+      "default_used": "-0.5 USD/lot/day long, +0.3 USD/lot/day short",
+      "impact": "Overnight cost accuracy",
+      "priority": "low",
+      "how_to_obtain": "SymbolInfoDouble(SYMBOL_SWAP_LONG/SHORT) - varies daily"
+    },
+    {
+      "item": "Trading hours (holidays)",
+      "default_used": "Standard FX hours with New Year/Christmas",
+      "impact": "Trade execution timing",
+      "priority": "medium",
+      "how_to_obtain": "Broker calendar or SymbolInfoInteger(SYMBOL_TRADE_MODE) during holidays"
+    },
+    {
+      "item": "Demo account number",
+      "default_used": "[NOT_SET]",
+      "impact": "Demo testing",
+      "priority": "high",
+      "how_to_obtain": "Create demo account on FOREX.com, note account number"
+    },
+    {
+      "item": "Leverage",
+      "default_used": "50 (inferred from margin)",
+      "impact": "Margin calculations",
+      "priority": "high",
+      "how_to_obtain": "AccountInfoInteger(ACCOUNT_LEVERAGE)"
+    },
+    {
+      "item": "Account type (hedging/netting)",
+      "default_used": "hedging",
+      "impact": "Position management",
+      "priority": "high",
+      "how_to_obtain": "AccountInfoInteger(ACCOUNT_MARGIN_MODE) - 0=Netting, 2=Hedging"
+    },
+    {
+      "item": "Latency measurements",
+      "default_used": "50-200ms (ECN/STP estimate)",
+      "impact": "Execution simulation",
+      "priority": "low",
+      "how_to_obtain": "Measure round-trip time from webhook → MT5 order → fill confirmation"
+    },
+    {
+      "item": "Historical slippage data",
+      "default_used": "Normal distribution: mean=1pt, std=2pt",
+      "impact": "Simulation accuracy",
+      "priority": "medium",
+      "how_to_obtain": "Log (FillPrice - RequestPrice) for 100+ trades, calculate distribution"
+    }
+  ],
+  "unusual_values": [
+    {
+      "symbol": "USDTHB",
+      "field": "margin_initial_usd_per_lot",
+      "value": 20000.0,
+      "typical_range": "1000-5000",
+      "explanation": "20x typical margin suggests 1:5 leverage or exotic pair premium",
+      "action_required": "VERIFY WITH BROKER"
+    },
+    {
+      "symbol": "USDTHB",
+      "field": "digits",
+      "value": 3,
+      "typical_range": "5 for most FX pairs",
+      "explanation": "3 digits is correct for THB pairs (e.g., 35.500)",
+      "action_required": "CONFIRMED CORRECT"
+    },
+    {
+      "symbol": "USDSEK",
+      "field": "margin_initial_usd_per_lot",
+      "value": 3000.0,
+      "typical_range": "1000-3000",
+      "explanation": "Higher than typical 1000 but within reasonable range for Raw Pricing account",
+      "action_required": "ACCEPTABLE"
+    }
+  ],
+  "human_readable_summary": {
+    "critical_issues": [
+      "USDTHB margin of 20,000 USD/lot is unusually high - MUST verify with broker before live trading",
+      "Account currency inferred as USD - verify with AccountInfoString(ACCOUNT_CURRENCY)",
+      "Demo account number not set - create demo account for integration testing"
+    ],
+    "warnings": [
+      "Swap rates are conservative defaults - actual rates vary daily",
+      "Spread data is estimated - collect historical data for accurate simulation",
+      "Trading hours holidays are default - verify broker calendar"
+    ],
+    "acceptable_defaults": [
+      "Execution model: Market with FOK filling (standard for Raw Pricing)",
+      "Commission: 7 USD/lot round-trip (typical for Raw Pricing)",
+      "Max slippage: 3 points (conservative default)"
+    ],
+    "next_steps": [
+      "1. Run MQL5 extraction script to verify all symbol specifications",
+      "2. Create demo account and test symbol availability",
+      "3. Verify USDTHB margin with broker support",
+      "4. Collect 1 week of spread data for accurate simulation",
+      "5. Test webhook → MT5 bridge with demo account"
+    ]
+  }
+}
+

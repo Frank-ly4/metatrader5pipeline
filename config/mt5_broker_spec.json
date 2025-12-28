@@ -1,0 +1,248 @@
+{
+  "broker": {
+    "name": "FOREX.com",
+    "account_type": "Raw Pricing Account",
+    "server_demo": "MT5 US Demo",
+    "server_live": "MT5 US Live 536",
+    "account_demo": "[NOT_SET]",
+    "account_live": 24385319,
+    "login_url": "mt5live104.loginandtrade.com:443",
+    "account_currency": "USD",
+    "account_type_detail": "hedging",
+    "leverage": 100,
+    "verify_account_currency": true,
+    "notes": "Account currency inferred as USD - verify with AccountInfoString(ACCOUNT_CURRENCY). Leverage verified from MT5 extraction script. Tick values are dynamic and change with exchange rates - use SymbolInfoDouble(SYMBOL_TRADE_TICK_VALUE) at calculation time."
+  },
+  "symbols": {
+    "USDSEK": {
+      "symbol_mt5": "USDSEK!",
+      "symbol_tradingview": "FX:USDSEK",
+      "enabled": true,
+      "needs_confirmation": false,
+      "digits": 5,
+      "contract_size": 100000,
+      "contract_size_currency": "USD",
+      "tick_size": 0.00001,
+      "tick_value": 1.0,
+      "tick_value_currency": "USD",
+      "min_volume": 0.01,
+      "volume_step": 0.01,
+      "max_volume": 50.0,
+      "spread_type": "floating",
+      "spread_median": {
+        "asian": 2.5,
+        "london": 1.5,
+        "new_york": 1.5
+      },
+      "spread_95th": {
+        "asian": 5.0,
+        "london": 3.0,
+        "new_york": 3.0
+      },
+      "spread_fixed": null,
+      "swap_long": -0.5,
+      "swap_short": 0.3,
+      "swap_time_utc": "00:00:00",
+      "swap_type": "points",
+      "commission_per_lot": 7.0,
+      "commission_per_side": 3.5,
+      "commission_currency": "USD",
+      "commission_type": "round_trip",
+      "profit_currency": "SEK",
+      "margin_currency": "USD",
+      "margin_initial_usd_per_lot": 3000.0,
+      "margin_maintenance_usd_per_lot": 3000.0,
+      "margin_calculation_method": "per_lot",
+      "execution_type": "market",
+      "filling_mode": "FOK",
+      "filling_mode_mql5": 1,
+      "max_slippage_points": 3,
+      "trading_hours": {
+        "monday_open": "00:00:00",
+        "friday_close": "22:00:00",
+        "timezone": "UTC",
+        "maintenance_window": "Friday 22:00 UTC - Sunday 22:00 UTC",
+        "holidays": ["New Year", "Christmas"],
+        "verify_holidays": true
+      },
+      "defaults_used": {
+        "spread_median": "Conservative estimates - collect historical data",
+        "spread_95th": "Conservative estimates - collect historical data",
+        "swap_long": "Conservative default - verify with SymbolInfoDouble(SYMBOL_SWAP_LONG)",
+        "swap_short": "Conservative default - verify with SymbolInfoDouble(SYMBOL_SWAP_SHORT)",
+        "trading_hours": "Standard FX hours - verify with broker calendar"
+      }
+    },
+    "USDTHB": {
+      "symbol_mt5": "USDTHB!",
+      "symbol_tradingview": "FX:USDTHB",
+      "enabled": true,
+      "needs_confirmation": false,
+      "digits": 3,
+      "contract_size": 100000,
+      "contract_size_currency": "USD",
+      "tick_size": 0.001,
+      "tick_value": 1.0,
+      "tick_value_currency": "USD",
+      "min_volume": 0.01,
+      "volume_step": 0.01,
+      "max_volume": 50.0,
+      "spread_type": "floating",
+      "spread_median": {
+        "asian": 3.0,
+        "london": 2.0,
+        "new_york": 2.0
+      },
+      "spread_95th": {
+        "asian": 6.0,
+        "london": 4.0,
+        "new_york": 4.0
+      },
+      "spread_fixed": null,
+      "swap_long": -0.5,
+      "swap_short": 0.3,
+      "swap_time_utc": "00:00:00",
+      "swap_type": "points",
+      "commission_per_lot": 7.0,
+      "commission_per_side": 3.5,
+      "commission_currency": "USD",
+      "commission_type": "round_trip",
+      "profit_currency": "THB",
+      "margin_currency": "USD",
+      "margin_initial_usd_per_lot": 20000.0,
+      "margin_maintenance_usd_per_lot": 20000.0,
+      "margin_calculation_method": "per_lot",
+      "execution_type": "market",
+      "filling_mode": "FOK",
+      "filling_mode_mql5": 1,
+      "max_slippage_points": 3,
+      "trading_hours": {
+        "monday_open": "00:00:00",
+        "friday_close": "22:00:00",
+        "timezone": "UTC",
+        "maintenance_window": "Friday 22:00 UTC - Sunday 22:00 UTC",
+        "holidays": ["New Year", "Christmas"],
+        "verify_holidays": true
+      },
+      "verify_with_broker": {
+        "margin_initial_usd_per_lot": true,
+        "reason": "USDTHB margin of 20,000 USD/lot is unusually high - verify with SymbolInfoDouble(SYMBOL_MARGIN_INITIAL)"
+      },
+      "defaults_used": {
+        "spread_median": "Conservative estimates - collect historical data",
+        "spread_95th": "Conservative estimates - collect historical data",
+        "swap_long": "Conservative default - verify with SymbolInfoDouble(SYMBOL_SWAP_LONG)",
+        "swap_short": "Conservative default - verify with SymbolInfoDouble(SYMBOL_SWAP_SHORT)",
+        "trading_hours": "Standard FX hours - verify with broker calendar"
+      }
+    }
+  },
+  "tradingview_webhook": {
+    "endpoint": "http://your-server:8080/webhook",
+    "required_fields": [
+      "strategy_id",
+      "signal",
+      "symbol_tv",
+      "symbol_mt5",
+      "price",
+      "size_lots",
+      "stop_loss",
+      "take_profit",
+      "timestamp_utc",
+      "uid"
+    ],
+    "optional_fields": [
+      "risk_pct"
+    ],
+    "idempotency_key": "uid",
+    "price_tolerance_pips": 10,
+    "timestamp_skew_max_seconds": 300,
+    "hmac_secret_header": "X-TradingView-Signature",
+    "retry_backoff_seconds": [1, 2, 4],
+    "max_retries": 3
+  },
+  "ea_behavior": {
+    "lot_sizing": "risk_percent",
+    "risk_per_trade_percent": 0.25,
+    "max_risk_per_day_percent": 2.0,
+    "stop_tp_method": "separate_orders",
+    "emergency_stop_drawdown_percent": 15.0,
+    "emergency_stop_consecutive_losses": 5,
+    "max_position_adds": 3,
+    "order_timeout_seconds": 5,
+    "use_limit_orders": false,
+    "ftmo_style_rules": {
+      "max_daily_loss_percent": 5.0,
+      "max_drawdown_percent": 10.0,
+      "min_trading_days": 5,
+      "profit_target_percent": 10.0
+    }
+  },
+  "backtest": {
+    "train_window_years": 3,
+    "test_window_months": 6,
+    "walk_forward_steps_months": 1,
+    "monte_carlo_simulations": 1000,
+    "monte_carlo_randomize": [
+      "spread",
+      "slippage",
+      "execution_latency"
+    ],
+    "required_metrics": [
+      "expectancy",
+      "sharpe_ratio",
+      "sortino_ratio",
+      "max_drawdown",
+      "mar_ratio",
+      "trade_distribution",
+      "worst_case_margin"
+    ],
+    "simulation_model": {
+      "spread_distribution": "normal",
+      "spread_mean": "session_median",
+      "spread_std": "session_95th_minus_median",
+      "slippage_distribution": "normal",
+      "slippage_mean_points": 1.0,
+      "slippage_std_points": 2.0,
+      "partial_fills_enabled": false,
+      "commission_per_lot": 7.0,
+      "swap_applied_daily": true,
+      "margin_call_threshold": 1.0,
+      "stop_out_threshold": 0.5
+    }
+  },
+  "deliverables": {
+    "demo_acceptance_criteria": {
+      "min_days": 30,
+      "max_drawdown_percent": 10.0,
+      "min_expectancy": 0.0,
+      "max_critical_bugs": 0,
+      "min_trades": 20,
+      "max_slippage_vs_expected": 2.0
+    },
+    "live_acceptance_criteria": {
+      "min_days": 90,
+      "max_drawdown_percent": 15.0,
+      "min_expectancy": 0.0,
+      "max_critical_bugs": 0,
+      "min_trades": 50,
+      "max_slippage_vs_expected": 2.0
+    },
+    "reporting": {
+      "daily_pl_email": true,
+      "weekly_performance_summary": true,
+      "monthly_parameter_review": true
+    },
+    "versioning": {
+      "tag_format": "v{MAJOR}.{MINOR}.{PATCH}",
+      "rollback_procedure": "Stop EA, revert to previous version, restart EA"
+    }
+  },
+  "metadata": {
+    "created": "2025-12-26",
+    "last_updated": "2025-12-26",
+    "version": "1.0.0",
+    "notes": "USDTHB margin verified as unusually high - confirm with broker before live trading"
+  }
+}
+

@@ -1,0 +1,67 @@
+{
+  "symbols": {
+    "USDSEK": {
+      "symbol_mt5_primary": "USDSEK!",
+      "symbol_tradingview": "FX:USDSEK",
+      "enabled": true,
+      "verified": false,
+      "candidate_variants": [
+        {
+          "symbol": "USDSEK!",
+          "is_primary": true,
+          "needs_confirmation": false,
+          "notes": "Exclamation mark variant - standard for Raw Pricing accounts"
+        },
+        {
+          "symbol": "USDSEK",
+          "is_primary": false,
+          "needs_confirmation": true,
+          "notes": "Standard variant - verify if available"
+        },
+        {
+          "symbol": "USDSEK.m",
+          "is_primary": false,
+          "needs_confirmation": true,
+          "notes": "Micro account variant - unlikely for Raw Pricing"
+        }
+      ],
+      "verification_mql5": "SymbolInfoInteger(\"USDSEK!\", SYMBOL_SELECT) && SymbolInfoInteger(\"USDSEK!\", SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_FULL"
+    },
+    "USDTHB": {
+      "symbol_mt5_primary": "USDTHB!",
+      "symbol_tradingview": "FX:USDTHB",
+      "enabled": true,
+      "verified": false,
+      "candidate_variants": [
+        {
+          "symbol": "USDTHB!",
+          "is_primary": true,
+          "needs_confirmation": false,
+          "notes": "Exclamation mark variant - standard for Raw Pricing accounts"
+        },
+        {
+          "symbol": "USDTHB",
+          "is_primary": false,
+          "needs_confirmation": true,
+          "notes": "Standard variant - verify if available"
+        },
+        {
+          "symbol": "USDTHB.m",
+          "is_primary": false,
+          "needs_confirmation": true,
+          "notes": "Micro account variant - unlikely for Raw Pricing"
+        }
+      ],
+      "verification_mql5": "SymbolInfoInteger(\"USDTHB!\", SYMBOL_SELECT) && SymbolInfoInteger(\"USDTHB!\", SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_FULL"
+    }
+  },
+  "verification_instructions": {
+    "step_1": "Open MT5 → Market Watch → Right-click → Show All",
+    "step_2": "Search for 'USDSEK' and 'USDTHB'",
+    "step_3": "Right-click each symbol → Specification",
+    "step_4": "Verify symbol name matches 'USDSEK!' or 'USDTHB!'",
+    "step_5": "Check 'Trade' tab → ensure 'Trade Allowed' is checked",
+    "mql5_script": "Use SymbolInfoInteger(symbol, SYMBOL_SELECT) to verify programmatically"
+  }
+}
+

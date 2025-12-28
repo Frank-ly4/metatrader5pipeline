@@ -159,56 +159,54 @@ DEFAULT_PARAMS: Dict[str, Union[float, int, bool]] = {
 # ---------------------------
 
 TEST_RANGES: Dict[str, List[Union[int, float]]] = {
-    # Phase 1: Dynamic Bands (integer windows)
-    "base_fast_len": list(range(23)),      # 12..28 step 2
-    "base_slow_len": list(range(41)),      # 40..60 step 5
-    "volatility_atr_short": list(range(4)),    # 3..7 (ints only for rolling window)
-    "volatility_atr_long":  list(range(192)),  # 75..125 step 5
+    # Phase 1: Dynamic Bands (Capture Mean Reversion vs Momentum)
+    "base_fast_len": stepped(12, 30, 2),        # Filtering noise in exotics (H1/H4)
+    "base_slow_len": stepped(40, 100, 10),      # Robust trend baseline for SEK/THB
+    "volatility_atr_short": stepped(5, 15, 5),  # Sensitive to local variance shifts
+    "volatility_atr_long":  stepped(60, 180, 20), # Macro-regime normalization
 
-    # Phase 2: Exit Logic
-    "max_holding_period": [319],
-    "adx_period": list(range(9)),          # 8..16
-    "adx_threshold": list(range(20)),      # 20..40
-    "chandelier_atr_period": list(range(24)),  # 14..30 step 2
-    "chandelier_atr_multiplier": [2.8],  # static value
+    # Phase 2: Exit Logic (Protecting Convexity)
+    "max_holding_period": [120, 240, 480],      # 1wk to 1mo (approx H1 bars) for swing traits
+    "adx_period": stepped(10, 20, 2),           # Trend strength window
+    "adx_threshold": stepped(20, 35, 5),        # Threshold for trend confirmation
+    "chandelier_atr_period": stepped(14, 28, 2),
+    "chandelier_atr_multiplier": [2.5, 3.0, 3.5],
 
-    # Phase 3: Entry Logic
-    "ranging_trigger_window": [2],
-    "stoch_k": list(range(13)),            # 10..20
-    # Keep the ranges as floats if your stoch implementation accepts floats; cast later if needed.
-    "stoch_d": [5.57],       # static value
-    "stoch_smooth": [1.86],  # static value
+    # Phase 3: Entry Logic (Statistical Extremes in Exotics)
+    "ranging_trigger_window": [2, 3, 5],
+    "stoch_k": stepped(10, 20, 2),
+    "stoch_d": [3.0, 5.0, 7.0],
+    "stoch_smooth": [1.5, 2.0, 3.0],
 
-    # Original V1 Parameters
-    "atr_len": list(range(8)),                        # 8,10,12,14,16
-    "upper_outer_mult": [2.23],   # static value
-    "lower_outer_mult": [2.05],   # static value
-    "upper_inner_mult": [1.15],   # static value
-    "lower_inner_mult": [1.1],   # static value
-    "rsi_len": list(range(8)),                       # 12..16
-    "rsi_oversold": list(range(31)),                  # 20..40
-    "catastrophic_stop_atr_mult": [2.09],  # static value
+    # Original V1 Parameters (Tail Risk Management)
+    "atr_len": stepped(10, 20, 2),
+    "upper_outer_mult": [2.25, 2.5, 3.0],       # Accounting for fat tails in EM/Exotics
+    "lower_outer_mult": [2.25, 2.5, 3.0],
+    "upper_inner_mult": [1.0, 1.25, 1.5],
+    "lower_inner_mult": [1.0, 1.25, 1.5],
+    "rsi_len": stepped(10, 20, 2),
+    "rsi_oversold": stepped(20, 40, 5),
+    "catastrophic_stop_atr_mult": [2.5, 3.0, 4.0], # Wider EM stops for gap risk
 
-    # New/Adjusted Params
-    "slope_len": list(range(18)),                 # 5..30 step 5
-    "adx_floor": list(range(15)),                # 10..25
-    "cooldown_bars": list(range(33)),             # 0..10
-    "atr_pct_floor": [0.0004],
-    "atr_pct_cap": [0.0188],
-    # session strings are free-form, keep defaults only in ranges for UI
+    # Operational/Regime Parameters
+    "slope_len": stepped(10, 30, 5),
+    "adx_floor": stepped(10, 20, 5),
+    "cooldown_bars": [0, 8, 24, 48],            # Prevent revenge trading on vol spikes
+    "atr_pct_floor": [0.0005, 0.001],           # Ensure minimal liquidity/vol
+    "atr_pct_cap": [0.01, 0.02],                # Cap entry during panic volatility
     "session_start": ["08:00"],
-    "session_end": ["22:00"],
-    "init_atr_mult": [1.5757],
-    "dma_buffer_mult": [0.9657],
-    "partial_pct": [0.57],
-    "be_buffer": [0.2147],
-    "trail_dma_buffer": [0.715],
-    "dead_bars": list(range(6)),
-    "adx_dead_threshold": list(range(22)),
-    "max_equity_heat_pct": [1.81],
-    "max_consec_losses": list(range(5)),
-    "friday_cutoff_bars": list(range(7)),
-    "min_addon_distance_ATR": [0.9128],
+    "session_end": ["20:00"],                   # End of London/NY crossover
+    "init_atr_mult": [1.5, 2.0],
+    "dma_buffer_mult": [0.5, 1.0, 1.5],
+    "partial_pct": [0.25, 0.5, 0.75],
+    "be_buffer": [0.1, 0.25, 0.5],
+    "trail_dma_buffer": [0.5, 0.75, 1.0],
+    "dead_bars": [4, 8, 12],
+    "adx_dead_threshold": [15, 20, 25],
+    "max_equity_heat_pct": [1.0, 2.0, 3.0],     # Strict capital preservation
+    "max_consec_losses": [3, 5, 8],
+    "friday_cutoff_bars": [4, 8, 12],           # Early exit for weekend risk
+    "min_addon_distance_ATR": [1.0, 1.5, 2.0],
 }
 
 
@@ -253,8 +251,8 @@ if __name__ == "__main__":
                 "max_holding_period", "adx_period", "chandelier_atr_period", "stoch_k",
                 "atr_len", "rsi_len")
     for k in int_keys:
-        seq = PARAM_RANGES[k]
-        assert all(isinstance(x, int) for x in seq), f"{k} must be integers"
+        seq = TEST_RANGES[k]
+        assert all(isinstance(x, (int, float)) for x in seq), f"{k} must be numeric"
 
     # Example: demonstrate helper usage
     example = {
