@@ -1,5 +1,5 @@
 Chart: USDJPY_4h_cl_3
-Path: data\active_charts\USDJPY_4h_cl_3.csv
+Path: C:\Users\frank\OneDrive\Desktop\Optimizer_final_draft\data\active_charts\USDJPY_4h_cl_3.csv
 Bars: 13915 | Timeframe: 4h
 Date-time range: 2019-07-10 20:00:00 → 2025-11-14 20:00:00
 Total return: 42.44%

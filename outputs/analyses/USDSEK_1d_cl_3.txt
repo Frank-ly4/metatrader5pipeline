@@ -1,5 +1,5 @@
 Chart: USDSEK_1d_cl_3
-Path: data\active_charts\USDSEK_1d_cl_3.csv
+Path: C:\Users\frank\OneDrive\Desktop\Optimizer_final_draft\data\active_charts\USDSEK_1d_cl_3.csv
 Bars: 2136 | Timeframe: 1d
 Date-time range: 2020-02-19 00:00:00 → 2025-12-24 00:00:00
 Total return: -6.46%

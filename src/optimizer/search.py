@@ -106,13 +106,127 @@ def _omega_ratio(returns, threshold: float = 0.0) -> float | None:
         return None
 
 
+def _compute_regime_stats(trades: pd.DataFrame, toggles: dict) -> dict | None:
+    """Best-effort regime attribution by joining trades with chart parquet data.
+
+    Uses chart_name from toggles to locate the corresponding parquet file in
+    data/active_charts/, then merges trade entries with indicator context
+    (e.g., ATR/ADX) and aggregates simple performance stats by regime.
+    """
+    try:
+        if trades is None or trades.empty:
+            return None
+
+        chart_name = toggles.get('chart_name')
+        if not chart_name:
+            return None
+
+        import os
+        parquet_name = chart_name.replace('.csv', '.parquet')
+        parquet_path = os.path.join('data', 'active_charts', parquet_name)
+        if not os.path.exists(parquet_path):
+            return None
+
+        indicators = pd.read_parquet(parquet_path)
+
+        # Ensure datetime index for indicators
+        if not isinstance(indicators.index, pd.DatetimeIndex):
+            time_col = None
+            for cand in ('time', 'Time', 'datetime', 'Date'):
+                if cand in indicators.columns:
+                    time_col = cand
+                    break
+            if time_col is None:
+                return None
+            indicators = indicators.set_index(pd.to_datetime(indicators[time_col], errors='coerce'))
+
+        indicators = indicators.sort_index()
+
+        # Prepare trades entry times
+        if 'Entry Date' not in trades.columns:
+            return None
+
+        t = trades.copy()
+        t['Entry Date'] = pd.to_datetime(t['Entry Date'], errors='coerce')
+        t = t.dropna(subset=['Entry Date'])
+        if t.empty:
+            return None
+
+        # Choose a return-like column for attribution
+        ret_col = None
+        for cand in ('Return', 'return', 'PnL', 'pnl'):
+            if cand in t.columns:
+                ret_col = cand
+                break
+        if ret_col is None:
+            return None
+
+        merged = pd.merge_asof(
+            t.sort_values('Entry Date'),
+            indicators,
+            left_on='Entry Date',
+            right_index=True,
+            direction='backward',
+        )
+
+        stats: dict = {}
+
+        # Volatility buckets via ATR, if available
+        if 'atr' in merged.columns:
+            try:
+                merged['vol_bucket'] = pd.qcut(
+                    merged['atr'],
+                    4,
+                    labels=['Low', 'MedLow', 'MedHigh', 'High'],
+                )
+                vol_grp = (
+                    merged.groupby('vol_bucket')[ret_col]
+                    .agg(['count', 'mean'])
+                    .rename(columns={'count': 'trades', 'mean': 'avg_return'})
+                )
+                stats['volatility_buckets'] = vol_grp.to_dict(orient='index')
+            except Exception:
+                pass
+
+        # Trend buckets via ADX, if available
+        if 'adx' in merged.columns:
+            try:
+                merged['trend_bucket'] = pd.qcut(
+                    merged['adx'],
+                    4,
+                    labels=['Weak', 'Moderate', 'Strong', 'Extreme'],
+                )
+                trend_grp = (
+                    merged.groupby('trend_bucket')[ret_col]
+                    .agg(['count', 'mean'])
+                    .rename(columns={'count': 'trades', 'mean': 'avg_return'})
+                )
+                stats['trend_buckets'] = trend_grp.to_dict(orient='index')
+            except Exception:
+                pass
+
+        return stats or None
+    except Exception:
+        # Never let attribution break optimization; it's best-effort only
+        return None
+
+
 def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_signals_func) -> tuple[dict, pd.DataFrame]:
     """Evaluate one parameter set and also return per-trade records (readable).
     
     Handles both 3-tuple (legacy long-only) and 5-tuple (bidirectional) return shapes.
     """
+    # Ensure broker spec is in toggles for margin-aware simulation
+    if 'broker_spec' not in toggles:
+        import os
+        import json
+        spec_path = os.path.join('config', 'mt5_broker_spec.json')
+        if os.path.exists(spec_path):
+            with open(spec_path, 'r') as f:
+                toggles['broker_spec'] = json.load(f)
+
     result = compute_signals_func(price, params, toggles)
-    
+
     # Detect return shape: 3-tuple (legacy) or 5-tuple (bidirectional)
     if len(result) == 5:
         # Bidirectional: (long_entries, long_exits, short_entries, short_exits, debug)
@@ -193,6 +307,16 @@ def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_s
         # 'dd_adj': dbg.get('dd_adj'),
         'params': params.copy()
     }
+
+    # Best-effort regime attribution (parquet-based)
+    try:
+        regime_stats = _compute_regime_stats(trades, toggles)
+        if regime_stats:
+            row['regime_stats'] = regime_stats
+    except Exception:
+        # Do not let attribution affect core optimization
+        pass
+
     return row, trades
 
 

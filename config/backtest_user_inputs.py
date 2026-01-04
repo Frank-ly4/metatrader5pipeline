@@ -12,7 +12,7 @@ BACKTEST_CONFIG = {
     'data_freq': '2h',
     'init_cash': 50000.0,
     'fees': 0.00045,
-    'size': 0.20,            # 30% of portfolio per position
+    'size': 0.40,            # 30% of portfolio per position
     'size_type': 'percent',  # vectorbt percent sizing
     'max_orders': None,      # let vectorbt manage orders; set int to cap
     'max_layers': 3          # controlled pyramiding layers

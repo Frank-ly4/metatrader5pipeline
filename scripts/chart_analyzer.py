@@ -52,6 +52,28 @@ def compute_human_summary(price: pd.DataFrame, regs: pd.DataFrame, segdf: pd.Dat
     avg_len = float(segdf['bars'].mean()) if num_segments else 0.0
     med_len = float(segdf['bars'].median()) if num_segments else 0.0
     max_len = int(segdf['bars'].max()) if num_segments else 0
+    
+    # NEW: Regime transitions
+    reg_list = regs['regime'].tolist()
+    transitions = {}
+    if len(reg_list) > 1:
+        for i in range(len(reg_list)-1):
+            curr, next_r = reg_list[i], reg_list[i+1]
+            if curr != next_r:
+                pair = f"{curr} -> {next_r}"
+                transitions[pair] = transitions.get(pair, 0) + 1
+    
+    # NEW: Duration stats per regime
+    duration_stats = {}
+    if not segdf.empty:
+        for regime, group in segdf.groupby('regime'):
+            duration_stats[regime] = {
+                'min': int(group['bars'].min()),
+                'max': int(group['bars'].max()),
+                'median': float(group['bars'].median()),
+                'avg': float(group['bars'].mean())
+            }
+
     # Regime distribution by top-level and by vol bucket
     def parse_regime(label: str) -> Tuple[str, str]:
         parts = str(label).split('_')
@@ -84,6 +106,10 @@ def compute_human_summary(price: pd.DataFrame, regs: pd.DataFrame, segdf: pd.Dat
         t, v = parse_regime(label)
         trend_counts[t] = trend_counts.get(t, 0) + 1
         vol_counts[v] = vol_counts.get(v, 0) + 1
+    
+    # NEW: Stability Score (ratio of segments to total bars, lower is more stable)
+    stability_score = 1.0 - (num_segments / n) if n > 0 else 0.0
+
     # Top best/worst segments by return
     top_best = segdf.sort_values('return_pct', ascending=False).head(3)
     top_worst = segdf.sort_values('return_pct', ascending=True).head(3)
@@ -123,6 +149,9 @@ def compute_human_summary(price: pd.DataFrame, regs: pd.DataFrame, segdf: pd.Dat
         'avg_segment_bars': avg_len,
         'median_segment_bars': med_len,
         'max_segment_bars': max_len,
+        'stability_score': stability_score,
+        'regime_transitions': transitions,
+        'regime_durations': duration_stats,
         'trend_distribution': {k: {'bars': v, 'pct': (v / n * 100.0 if n else 0.0)} for k, v in trend_counts.items()},
         'vol_distribution': {k: {'bars': v, 'pct': (v / n * 100.0 if n else 0.0)} for k, v in vol_counts.items()},
         'top_best_segments': top_best_records,
@@ -137,13 +166,30 @@ def print_human_summary(chart_name: str, summary: Dict) -> None:
     print(f"Bars: {summary['bars']} | Timeframe: {summary['timeframe']}")
     print(f"Date-time range: {summary['start']} → {summary['end']}")
     print(f"Total return: {summary['total_return_pct']:.2f}%")
-    print(f"Regime segments: {summary['num_segments']} | avg bars: {summary['avg_segment_bars']:.1f} | median: {summary['median_segment_bars']:.1f} | max: {summary['max_segment_bars']}")
+    print(f"Regime segments: {summary['num_segments']} | stability: {summary['stability_score']:.3f}")
+    print(f"Segment bars - avg: {summary['avg_segment_bars']:.1f} | median: {summary['median_segment_bars']:.1f} | max: {summary['max_segment_bars']}")
+    
     td = summary['trend_distribution']
     vd = summary['vol_distribution']
     print("Trend distribution (by bars): "
           f"up {td['trend_up']['pct']:.1f}% | range {td['range']['pct']:.1f}% | down {td['trend_down']['pct']:.1f}%")
     print("Vol distribution (by bars):   "
           f"low {vd['low']['pct']:.1f}% | mid {vd['mid']['pct']:.1f}% | high {vd['high']['pct']:.1f}%")
+    
+    # NEW: Regime Transitions
+    trans = summary.get('regime_transitions', {})
+    if trans:
+        print("Top regime transitions:")
+        top_trans = sorted(trans.items(), key=lambda x: x[1], reverse=True)[:5]
+        print("  " + " | ".join([f"{k}: {v}" for k, v in top_trans]))
+
+    # NEW: Duration stats
+    durs = summary.get('regime_durations', {})
+    if durs:
+        print("Regime duration (median bars):")
+        dur_str = " | ".join([f"{k}: {v['median']:.0f}" for k, v in durs.items()])
+        print(f"  {dur_str}")
+
     # Top segments
     tb = summary['top_best_segments']
     tw = summary['top_worst_segments']
@@ -219,10 +265,23 @@ def format_summary_text(chart_name: str, chart_path: str, summary: Dict, segdf: 
     lines.append(f"Bars: {summary['bars']} | Timeframe: {summary['timeframe']}")
     lines.append(f"Date-time range: {summary['start']} → {summary['end']}")
     lines.append(f"Total return: {summary['total_return_pct']:.2f}%")
-    lines.append(f"Regime segments: {summary['num_segments']} | avg bars: {summary['avg_segment_bars']:.1f} | median: {summary['median_segment_bars']:.1f} | max: {summary['max_segment_bars']}")
+    lines.append(f"Regime segments: {summary['num_segments']} | stability: {summary['stability_score']:.3f}")
+    lines.append(f"Segment bars - avg: {summary['avg_segment_bars']:.1f} | median: {summary['median_segment_bars']:.1f} | max: {summary['max_segment_bars']}")
+    
     td = summary['trend_distribution']; vd = summary['vol_distribution']
     lines.append(f"Trend distribution (by bars): up {td['trend_up']['pct']:.1f}% | range {td['range']['pct']:.1f}% | down {td['trend_down']['pct']:.1f}%")
     lines.append(f"Vol distribution (by bars):   low {vd['low']['pct']:.1f}% | mid {vd['mid']['pct']:.1f}% | high {vd['high']['pct']:.1f}%")
+    
+    trans = summary.get('regime_transitions', {})
+    if trans:
+        top_trans = sorted(trans.items(), key=lambda x: x[1], reverse=True)[:5]
+        lines.append("Top regime transitions: " + " | ".join([f"{k}: {v}" for k, v in top_trans]))
+
+    durs = summary.get('regime_durations', {})
+    if durs:
+        dur_str = " | ".join([f"{k}: {v['median']:.0f}" for k, v in durs.items()])
+        lines.append(f"Regime duration (median bars): {dur_str}")
+
     tb = summary['top_best_segments']; tw = summary['top_worst_segments']
     if tb is not None and len(tb) > 0:
         lines.append("Top +3 segments by return:")

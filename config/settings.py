@@ -5,7 +5,7 @@ from typing import Optional
 class TradingConfig:
     # Portfolio / backtest settings
     starting_capital: float = 1000.0         # initial cash
-    position_size_per_layer: float = 0.30    # 30% per entry layer
+    position_size_per_layer: float = 0.40    # 30% per entry layer
     max_layers: int = 3                      # up to 3 pyramiding layers
     fees: float = 0.00045                    # commission per trade
     data_freq: str = "15m"                  # default data frequency

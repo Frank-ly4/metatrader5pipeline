@@ -1,5 +1,5 @@
 Chart: USDTHB_1d_cl_2
-Path: data\active_charts\USDTHB_1d_cl_2.csv
+Path: C:\Users\frank\OneDrive\Desktop\Optimizer_final_draft\data\active_charts\USDTHB_1d_cl_2.csv
 Bars: 2136 | Timeframe: 1d
 Date-time range: 2020-02-19 00:00:00 → 2025-12-24 00:00:00
 Total return: -2.22%

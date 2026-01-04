@@ -1,5 +1,5 @@
 Chart: USDJPY_1d_cl_2
-Path: data\active_charts\USDJPY_1d_cl_2.csv
+Path: C:\Users\frank\OneDrive\Desktop\Optimizer_final_draft\data\active_charts\USDJPY_1d_cl_2.csv
 Bars: 2319 | Timeframe: 1d
 Date-time range: 2019-07-11 00:00:00 → 2025-11-14 00:00:00
 Total return: 42.41%

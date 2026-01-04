@@ -160,15 +160,15 @@ DEFAULT_PARAMS: Dict[str, Union[float, int, bool]] = {
 
 TEST_RANGES: Dict[str, List[Union[int, float]]] = {
     # Phase 1: Dynamic Bands (Capture Mean Reversion vs Momentum)
-    "base_fast_len": stepped(12, 30, 2),        # Filtering noise in exotics (H1/H4)
-    "base_slow_len": stepped(40, 100, 10),      # Robust trend baseline for SEK/THB
+    "base_fast_len": stepped(15, 25, 1),        # Finer grain for precise crossover timing
+    "base_slow_len": stepped(50, 65, 5),        # The "Safe Zone" for trend detection
     "volatility_atr_short": stepped(5, 15, 5),  # Sensitive to local variance shifts
     "volatility_atr_long":  stepped(60, 180, 20), # Macro-regime normalization
 
     # Phase 2: Exit Logic (Protecting Convexity)
-    "max_holding_period": [120, 240, 480],      # 1wk to 1mo (approx H1 bars) for swing traits
+    "max_holding_period": [120, 240],           # Proven swing windows
     "adx_period": stepped(10, 20, 2),           # Trend strength window
-    "adx_threshold": stepped(20, 35, 5),        # Threshold for trend confirmation
+    "adx_threshold": stepped(20, 30, 5),        # Strict trend confirmation (20+)
     "chandelier_atr_period": stepped(14, 28, 2),
     "chandelier_atr_multiplier": [2.5, 3.0, 3.5],
 
@@ -180,31 +180,31 @@ TEST_RANGES: Dict[str, List[Union[int, float]]] = {
 
     # Original V1 Parameters (Tail Risk Management)
     "atr_len": stepped(10, 20, 2),
-    "upper_outer_mult": [2.25, 2.5, 3.0],       # Accounting for fat tails in EM/Exotics
-    "lower_outer_mult": [2.25, 2.5, 3.0],
+    "upper_outer_mult": stepped(2.25, 2.75, 0.1), # Fine-tuned trade-off (Frequency vs Risk)
+    "lower_outer_mult": stepped(2.25, 2.75, 0.1),
     "upper_inner_mult": [1.0, 1.25, 1.5],
     "lower_inner_mult": [1.0, 1.25, 1.5],
     "rsi_len": stepped(10, 20, 2),
     "rsi_oversold": stepped(20, 40, 5),
-    "catastrophic_stop_atr_mult": [2.5, 3.0, 4.0], # Wider EM stops for gap risk
+    "catastrophic_stop_atr_mult": stepped(2.5, 4.0, 0.5), # More steps in the high-protection zone
 
     # Operational/Regime Parameters
     "slope_len": stepped(10, 30, 5),
     "adx_floor": stepped(10, 20, 5),
-    "cooldown_bars": [0, 8, 24, 48],            # Prevent revenge trading on vol spikes
+    "cooldown_bars": [8, 12, 16],               # Strict enforcement of "Patience"
     "atr_pct_floor": [0.0005, 0.001],           # Ensure minimal liquidity/vol
     "atr_pct_cap": [0.01, 0.02],                # Cap entry during panic volatility
     "session_start": ["08:00"],
     "session_end": ["20:00"],                   # End of London/NY crossover
-    "init_atr_mult": [1.5, 2.0],
+    "init_atr_mult": stepped(1.5, 2.5, 0.25),   # Shifting range higher based on successful 1.9+ runs
     "dma_buffer_mult": [0.5, 1.0, 1.5],
     "partial_pct": [0.25, 0.5, 0.75],
-    "be_buffer": [0.1, 0.25, 0.5],
+    "be_buffer": stepped(0.1, 0.4, 0.1),        # Increased resolution for break-even moves
     "trail_dma_buffer": [0.5, 0.75, 1.0],
     "dead_bars": [4, 8, 12],
     "adx_dead_threshold": [15, 20, 25],
-    "max_equity_heat_pct": [1.0, 2.0, 3.0],     # Strict capital preservation
-    "max_consec_losses": [3, 5, 8],
+    "max_equity_heat_pct": [1.0, 1.5],          # Force smaller sizing to cap DD < 4%
+    "max_consec_losses": [3, 4],                # Stop trading sooner in bad regimes
     "friday_cutoff_bars": [4, 8, 12],           # Early exit for weekend risk
     "min_addon_distance_ATR": [1.0, 1.5, 2.0],
 }

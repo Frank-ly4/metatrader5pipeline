@@ -49,16 +49,18 @@ def parse_symbol_from_filename(filename: str) -> str | None:
     
     Examples:
         USDJPY_H4_202207110000_202411151600.csv -> USDJPY
-        USDJPY_Daily_201907110000_202511140000.csv -> USDJPY
-        USDTHB_H4_202208182000_202412201600.csv -> USDTHB
+        USDJPY!_H4_202207110000_202411151600.csv -> USDJPY
         XAUUSD_4h_cl_1.csv -> XAUUSD
     """
     base = os.path.splitext(filename)[0]
-    # Pattern: SYMBOL_TIMEFRAME_... (first part before underscore)
-    match = re.match(r'^([A-Z]+)_', base)
-    if match:
-        return match.group(1)
-    return None
+    parts = base.split('_')
+    if not parts:
+        return None
+    
+    symbol = parts[0]
+    # Remove trailing special chars like ! or #
+    symbol = re.sub(r'[^A-Z0-9]+$', '', symbol.upper())
+    return symbol if symbol else None
 
 
 def parse_timeframe_from_filename(filename: str) -> str | None:
@@ -83,6 +85,50 @@ def parse_timeframe_from_filename(filename: str) -> str | None:
         'H': '1h', 'h': '1h',
     }
     return tf_map.get(tf, tf.lower())
+
+
+def get_raw_file_selection(src_dir: str) -> list[str]:
+    """List files in charts_raw and allow user to select which to process."""
+    files = sorted([f for f in os.listdir(src_dir) if f.lower().endswith('.csv')])
+    if not files:
+        print(f"No CSV files found in {src_dir}")
+        return []
+    
+    print("\n📦 RAW CHARTS AVAILABLE:")
+    print("=" * 60)
+    for i, f in enumerate(files, 1):
+        size_kb = os.path.getsize(os.path.join(src_dir, f)) // 1024
+        print(f"  {i:2}. {f:<50} ({size_kb:>5} KB)")
+    print(f"  {len(files)+1:2}. ALL FILES")
+    print("=" * 60)
+    
+    while True:
+        try:
+            sel = input(f"\nSelect files to standardize (1-{len(files)+1}, or comma-separated indices): ").strip()
+            if not sel:
+                continue
+            
+            if sel == str(len(files) + 1):
+                return files
+            
+            selected_indices = []
+            for part in sel.split(','):
+                part = part.strip()
+                if '-' in part:
+                    start, end = map(int, part.split('-'))
+                    selected_indices.extend(range(start, end + 1))
+                else:
+                    selected_indices.append(int(part))
+            
+            out = []
+            for idx in selected_indices:
+                if 1 <= idx <= len(files):
+                    out.append(files[idx-1])
+            
+            if out:
+                return out
+        except ValueError:
+            print("Invalid input. Use numbers like '1,3,5' or '1-5'.")
 
 
 def normalize_chart(path: str) -> tuple[pd.DataFrame, str, str]:
@@ -255,12 +301,25 @@ def main():
     p.add_argument('--also-copy-active', action='store_true')
     p.add_argument('--asset', dest='asset', default=None)
     p.add_argument('--log', dest='log_path', default=os.path.join('outputs', 'standardize_log.csv'))
+    p.add_argument('--run-analyzer', action='store_true', default=True)
+    p.add_argument('--skip-analyzer', action='store_false', dest='run_analyzer')
+    p.add_argument('--all', action='store_true', help='Standardize all files without prompting')
     args = p.parse_args()
 
     os.makedirs(args.dst, exist_ok=True)
     active_dir = os.path.join('data','active_charts')
     if args.also_copy_active:
         os.makedirs(active_dir, exist_ok=True)
+    
+    # Selection
+    if args.all:
+        files_to_process = sorted([f for f in os.listdir(args.src) if f.lower().endswith('.csv')])
+    else:
+        files_to_process = get_raw_file_selection(args.src)
+    
+    if not files_to_process:
+        return
+
     # ensure log directory exists
     log_file = None
     log_writer = None
@@ -276,19 +335,7 @@ def main():
         if write_header:
             log_writer.writeheader()
 
-    # Auto-detect symbol from first file, or prompt if needed
-    csv_files = [f for f in os.listdir(args.src) if f.lower().endswith('.csv')]
-    default_asset = None
-    if csv_files:
-        default_asset = parse_symbol_from_filename(csv_files[0])
-    
-    asset = args.asset
-    if not asset:
-        if default_asset:
-            asset = default_asset
-            print(f"Auto-detected symbol from filename: {asset}")
-        else:
-            asset = input("Enter asset symbol (e.g., USDJPY): ").strip() or "ASSET"
+    asset_override = args.asset
     
     # Determine next sequential index based on existing chart_cl_#.csv files
     def get_max_existing_index(directories, prefix_pattern: re.Pattern):
@@ -311,13 +358,13 @@ def main():
     newly_standardized = []
 
     count = 0
-    for fname in os.listdir(args.src):
-        if not fname.lower().endswith('.csv'):
-            continue
+    for fname in files_to_process:
         src_path = os.path.join(args.src, fname)
         
         # Auto-detect symbol per file (in case of mixed symbols)
-        file_symbol = parse_symbol_from_filename(fname) or asset
+        file_symbol = asset_override or parse_symbol_from_filename(fname)
+        if not file_symbol:
+            file_symbol = input(f"Could not detect symbol for {fname}. Enter symbol: ").strip() or "ASSET"
         
         try:
             # gather pre-normalization metadata

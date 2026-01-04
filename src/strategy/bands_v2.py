@@ -418,11 +418,35 @@ def manage_position(
     return float(stop_price), partial_taken, float(chandelier_stop), float(r_value)
 
 
-def equity_heat_guard(open_layers: int, size_frac: float, max_heat_pct: float) -> bool:
-    """Return True if adding one more layer keeps equity heat <= cap (in %)."""
-    current_heat_pct = open_layers * (size_frac * 100.0)
-    next_heat_pct = (open_layers + 1) * (size_frac * 100.0)
-    return next_heat_pct <= float(max_heat_pct)
+def margin_guard(
+    open_layers: int,
+    size_frac: float,
+    leverage: float,
+    max_margin_pct: float = 40.0,
+    min_free_margin_pct: float = 30.0
+) -> bool:
+    """
+    Python implementation of MQL5 margin guardrails.
+    Returns True if entry is allowed.
+    
+    Formula: Margin Used = (Total Position Notional) / Leverage
+    """
+    # Required margin for one more layer as % of equity
+    # If size_frac is 0.10 (10% of equity notional), margin is 0.10/leverage
+    layer_margin_pct = (size_frac * 100.0) / leverage
+    total_margin_pct = (open_layers + 1) * layer_margin_pct
+    
+    # 1. Max margin usage check (40% of equity)
+    if total_margin_pct > max_margin_pct:
+        return False
+        
+    # 2. Min free margin check (30% of equity)
+    # Free Margin % = 100% - Total Margin % (simplified)
+    free_margin_pct = 100.0 - total_margin_pct
+    if free_margin_pct < min_free_margin_pct:
+        return False
+        
+    return True
 
 
 def compute_setup(low: float, slow_dma: float, atr: float, rsi: float, params: dict) -> bool:
@@ -669,8 +693,22 @@ def _compute_signals_state_machine(price: pd.DataFrame, params: dict, toggles: d
     consec_losses = 0
     ranging_entry_armed = 0
     open_layers = 0
+    used_margin = 0.0
     last_addon_price = 0.0
     max_layers = int((toggles or {}).get('max_layers', 3))
+    
+    # Broker spec for margin simulation
+    broker_spec = toggles.get('broker_spec', {})
+    leverage = broker_spec.get('broker', {}).get('leverage', 100)
+    contract_size = 100000 # default
+    symbol_name = toggles.get('symbol', 'USDSEK').replace('!', '')
+    symbol_data = broker_spec.get('symbols', {}).get(symbol_name, {})
+    if symbol_data:
+        contract_size = symbol_data.get('contract_size', 100000)
+    
+    # We estimate equity based on starting capital for signal-level logic
+    # Real execution-level equity is handled by the backtest engine.
+    est_equity = float(toggles.get('starting_capital', 50000.0))
 
     # arrays
     close_a = close.to_numpy(dtype=float, copy=False)
@@ -748,6 +786,7 @@ def _compute_signals_state_machine(price: pd.DataFrame, params: dict, toggles: d
                 # reset state
                 ranging_entry_armed = 0
                 open_layers = 0
+                used_margin = 0.0
                 entry_price = 0.0
                 stop_price = 0.0
                 partial_taken = False
@@ -758,7 +797,8 @@ def _compute_signals_state_machine(price: pd.DataFrame, params: dict, toggles: d
         if in_trade and flags.get('feature_pyramiding_addon_distance', True):
             if open_layers < max_layers and regime_a[i] == 'trend':
                 size_frac = float((toggles or {}).get('position_size', 0.30))
-                if not flags.get('feature_equity_heat_guard', True) or equity_heat_guard(open_layers, size_frac, p['max_equity_heat_pct']):
+                # Unified Margin Guard
+                if margin_guard(open_layers, size_frac, leverage):
                     # ensure distance from last add-on (or entry) by ATR multiple
                     base_ref = last_addon_price or entry_price
                     if close_a[i] >= base_ref + p['min_addon_distance_ATR'] * atr_a[i]:
@@ -798,11 +838,10 @@ def _compute_signals_state_machine(price: pd.DataFrame, params: dict, toggles: d
                 allow_entry = True
 
             if allow_entry:
-                # Equity heat guard
-                if flags.get('feature_equity_heat_guard', True):
-                    size_frac = float(toggles.get('position_size', 0.30) if isinstance(toggles, dict) else 0.30)
-                    if not equity_heat_guard(open_layers, size_frac, p['max_equity_heat_pct']):
-                        allow_entry = False
+                # Margin guard
+                size_frac = float(toggles.get('position_size', 0.30) if isinstance(toggles, dict) else 0.30)
+                if not margin_guard(0, size_frac, leverage):
+                    allow_entry = False
 
             if allow_entry:
                 entries_arr[i] = True

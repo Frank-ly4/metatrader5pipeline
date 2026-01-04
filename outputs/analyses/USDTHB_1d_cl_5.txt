@@ -1,0 +1,84 @@
+Chart: USDTHB_1d_cl_5
+Path: data\active_charts\USDTHB_1d_cl_5.csv
+Bars: 598 | Timeframe: 1d
+Date-time range: 2023-04-11 00:00:00 → 2024-11-28 00:00:00
+Total return: 0.43%
+Regime segments: 54 | stability: 0.910
+Segment bars - avg: 11.1 | median: 8.0 | max: 56
+Trend distribution (by bars): up 57.4% | range 0.3% | down 42.3%
+Vol distribution (by bars):   low 35.3% | mid 30.8% | high 33.9%
+Top regime transitions: trend_up_mid_vol -> trend_up_low_vol: 7 | trend_up_low_vol -> trend_up_mid_vol: 6 | trend_up_mid_vol -> trend_up_high_vol: 6 | trend_up_high_vol -> trend_up_mid_vol: 6 | trend_down_mid_vol -> trend_down_high_vol: 6
+Regime duration (median bars): range_low_vol: 2 | trend_down_high_vol: 19 | trend_down_low_vol: 7 | trend_down_mid_vol: 4 | trend_up_high_vol: 3 | trend_up_low_vol: 14 | trend_up_mid_vol: 8
+Top +3 segments by return:
+  2023-09-04T00:00:00 → 2023-09-27T00:00:00 | trend_up_low_vol     |    3.95% (24 bars)
+  2024-10-25T00:00:00 → 2024-11-14T00:00:00 | trend_up_mid_vol     |    3.78% (21 bars)
+  2024-09-28T00:00:00 → 2024-10-04T00:00:00 | trend_down_mid_vol   |    2.81% (7 bars)
+Top -3 segments by return:
+  2024-08-04T00:00:00 → 2024-09-16T00:00:00 | trend_down_high_vol  |   -5.69% (44 bars)
+  2024-09-18T00:00:00 → 2024-09-27T00:00:00 | trend_down_high_vol  |   -2.98% (10 bars)
+  2024-04-29T00:00:00 → 2024-05-16T00:00:00 | trend_up_low_vol     |   -2.18% (18 bars)
+Avg return per bar by regime (bps):
+  trend_down_low_vol    : 10.052
+  trend_up_mid_vol      : 2.047
+  trend_down_mid_vol    : 1.128
+  trend_up_low_vol      : 0.381
+  trend_up_high_vol     : -4.552
+  trend_down_high_vol   : -7.850
+  range_low_vol         : -19.275
+
+Detected regimes (contiguous segments):
+     start        end  bars              regime  close_start  close_end  return_pct
+2023-04-11 2023-04-12     2       range_low_vol       34.241     34.109   -0.385503
+2023-04-13 2023-04-19     7  trend_down_low_vol       33.956     34.425    1.381199
+2023-04-20 2023-04-27     8    trend_up_low_vol       34.289     34.068   -0.644522
+2023-04-28 2023-05-01     4  trend_down_low_vol       34.131     34.199    0.199232
+2023-05-02 2023-05-03     2  trend_down_mid_vol       34.064     33.883   -0.531353
+2023-05-04 2023-05-19    16  trend_down_low_vol       33.763     34.270    1.501644
+2023-05-20 2023-05-20     1    trend_up_low_vol       34.270     34.270    0.000000
+2023-05-21 2023-06-02    13    trend_up_mid_vol       34.270     34.784    1.499854
+2023-06-03 2023-06-05     3   trend_up_high_vol       34.784     34.712   -0.206992
+2023-06-06 2023-06-18    13    trend_up_mid_vol       34.744     34.329   -1.194451
+2023-06-19 2023-07-02    14    trend_up_low_vol       34.734     35.263    1.523003
+2023-07-03 2023-07-03     1    trend_up_mid_vol       34.957     34.957    0.000000
+2023-07-04 2023-07-04     1   trend_up_high_vol       34.852     34.852    0.000000
+2023-07-05 2023-07-10     6    trend_up_mid_vol       34.995     35.055    0.171453
+2023-07-11 2023-07-13     3   trend_up_high_vol       34.741     34.493   -0.713854
+2023-07-14 2023-08-08    26 trend_down_high_vol       34.480     34.982    1.455916
+2023-08-09 2023-08-16     8   trend_up_high_vol       35.052     35.474    1.203926
+2023-08-17 2023-09-03    18    trend_up_mid_vol       35.436     35.021   -1.171125
+2023-09-04 2023-09-27    24    trend_up_low_vol       35.233     36.624    3.948003
+2023-09-28 2023-10-05     8    trend_up_mid_vol       36.517     36.909    1.073473
+2023-10-06 2023-10-21    16   trend_up_high_vol       36.863     36.441   -1.144779
+2023-10-22 2023-10-22     1    trend_up_mid_vol       36.441     36.441    0.000000
+2023-10-23 2023-10-23     1   trend_up_high_vol       36.266     36.266    0.000000
+2023-10-24 2023-10-27     4    trend_up_mid_vol       36.146     36.065   -0.224091
+2023-10-28 2023-11-02     6    trend_up_low_vol       36.065     35.946   -0.329960
+2023-11-03 2023-11-03     1    trend_up_mid_vol       35.428     35.428    0.000000
+2023-11-04 2023-11-14    11  trend_down_mid_vol       35.428     35.495    0.189116
+2023-11-15 2023-11-19     5 trend_down_high_vol       35.493     34.998   -1.394641
+2023-11-20 2023-11-26     7  trend_down_mid_vol       35.184     35.274    0.255798
+2023-11-27 2023-12-07    11 trend_down_high_vol       35.023     35.115    0.262685
+2023-12-08 2023-12-08     1  trend_down_mid_vol       35.479     35.479    0.000000
+2023-12-09 2024-01-16    39 trend_down_high_vol       35.479     35.399   -0.225485
+2024-01-17 2024-01-19     3   trend_up_high_vol       35.541     35.478   -0.177260
+2024-01-20 2024-01-27     8    trend_up_mid_vol       35.478     35.624    0.411523
+2024-01-28 2024-01-28     1    trend_up_low_vol       35.624     35.624    0.000000
+2024-01-29 2024-02-16    19    trend_up_mid_vol       35.396     35.976    1.638603
+2024-02-17 2024-04-12    56    trend_up_low_vol       35.976     36.607    1.753947
+2024-04-13 2024-04-28    16    trend_up_mid_vol       36.607     36.977    1.010736
+2024-04-29 2024-05-16    18    trend_up_low_vol       36.983     36.177   -2.179380
+2024-05-17 2024-05-26    10  trend_down_mid_vol       36.057     36.620    1.561417
+2024-05-27 2024-05-29     3  trend_down_low_vol       36.557     36.814    0.703012
+2024-05-30 2024-05-30     1  trend_down_mid_vol       36.689     36.689    0.000000
+2024-05-31 2024-06-03     4    trend_up_mid_vol       36.799     36.564   -0.638604
+2024-06-04 2024-07-06    33    trend_up_low_vol       36.606     36.441   -0.450746
+2024-07-07 2024-07-26    20  trend_down_low_vol       36.441     35.911   -1.454406
+2024-07-27 2024-08-03     8  trend_down_mid_vol       35.911     35.243   -1.860154
+2024-08-04 2024-09-16    44 trend_down_high_vol       35.243     33.236   -5.694748
+2024-09-17 2024-09-17     1  trend_down_mid_vol       33.364     33.364    0.000000
+2024-09-18 2024-09-27    10 trend_down_high_vol       33.334     32.340   -2.981940
+2024-09-28 2024-10-04     7  trend_down_mid_vol       32.340     33.248    2.807669
+2024-10-05 2024-10-23    19 trend_down_high_vol       33.248     33.772    1.576035
+2024-10-24 2024-10-24     1  trend_down_mid_vol       33.593     33.593    0.000000
+2024-10-25 2024-11-14    21    trend_up_mid_vol       33.612     34.884    3.784363
+2024-11-15 2024-11-28    14   trend_up_high_vol       34.763     34.388   -1.078733

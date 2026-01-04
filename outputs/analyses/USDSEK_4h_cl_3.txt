@@ -1,5 +1,5 @@
 Chart: USDSEK_4h_cl_3
-Path: data\active_charts\USDSEK_4h_cl_3.csv
+Path: C:\Users\frank\OneDrive\Desktop\Optimizer_final_draft\data\active_charts\USDSEK_4h_cl_3.csv
 Bars: 7795 | Timeframe: 4h
 Date-time range: 2020-05-18 20:00:00 → 2023-12-08 20:00:00
 Total return: 7.87%

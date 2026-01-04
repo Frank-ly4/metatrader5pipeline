@@ -404,9 +404,13 @@ def main():
         
         # Process trials
         for param_idx, trial_params in enumerate(params_list):
+            # Build per-trial toggles so we can pass chart context downstream
+            trial_toggles = dict(TOGGLES)
+            trial_toggles['chart_name'] = chart_name
+
             if params['kfold'] > 0:
                 rows, trades_df = evaluate_collect_kfold(
-                    price, trial_params, TOGGLES, compute_signals_func,
+                    price, trial_params, trial_toggles, compute_signals_func,
                     k_folds=params['kfold'], embargo_frac=params['embargo_frac']
                 )
                 
@@ -429,7 +433,7 @@ def main():
                     chart_trades.append(trades_df)
                     
             else:
-                row, trades_df = evaluate_collect(price, trial_params, TOGGLES, compute_signals_func)
+                row, trades_df = evaluate_collect(price, trial_params, trial_toggles, compute_signals_func)
                 trial_counter += 1
                 
                 # Efficient parameter flattening
