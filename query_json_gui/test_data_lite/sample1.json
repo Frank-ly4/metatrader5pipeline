@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "chart": "EURUSD",
+    "fold_id": 1
+  },
+  "results": [
+    {
+      "calmar_ratio": 1.25,
+      "max_drawdown": 0.08,
+      "profit_factor": 1.65,
+      "sharpe_ratio": 1.15,
+      "num_trades": 45,
+      "win_rate": 0.62,
+      "param_lookback": 20,
+      "param_threshold": 0.5
+    },
+    {
+      "calmar_ratio": 0.85,
+      "max_drawdown": 0.12,
+      "profit_factor": 1.35,
+      "sharpe_ratio": 0.95,
+      "num_trades": 32,
+      "win_rate": 0.58,
+      "param_lookback": 15,
+      "param_threshold": 0.6
+    },
+    {
+      "calmar_ratio": 1.75,
+      "max_drawdown": 0.06,
+      "profit_factor": 2.10,
+      "sharpe_ratio": 1.45,
+      "num_trades": 52,
+      "win_rate": 0.68,
+      "param_lookback": 25,
+      "param_threshold": 0.45
+    }
+  ]
+}
+

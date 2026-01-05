@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "chart": "GBPUSD",
+    "fold_id": 2
+  },
+  "results": [
+    {
+      "calmar_ratio": 1.50,
+      "max_drawdown": 0.09,
+      "profit_factor": 1.85,
+      "sharpe_ratio": 1.25,
+      "num_trades": 38,
+      "win_rate": 0.65,
+      "param_lookback": 22,
+      "param_threshold": 0.48
+    },
+    {
+      "calmar_ratio": 2.10,
+      "max_drawdown": 0.05,
+      "profit_factor": 2.40,
+      "sharpe_ratio": 1.65,
+      "num_trades": 60,
+      "win_rate": 0.72,
+      "param_lookback": 30,
+      "param_threshold": 0.40
+    }
+  ]
+}
+

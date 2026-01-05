@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "chart": "USDJPY"
+  },
+  "results": [
+    {
+      "calmar_ratio": 1.0,
+      // This comment makes it invalid JSON
+      "max_drawdown": 0.10
+    }
+  ]
+}
+
