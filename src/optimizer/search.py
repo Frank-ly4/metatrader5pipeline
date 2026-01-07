@@ -1,4 +1,6 @@
 import itertools
+import os
+import numbers
 import numpy as np
 import pandas as pd
 from src.engine.backtest import run_backtest
@@ -211,6 +213,33 @@ def _compute_regime_stats(trades: pd.DataFrame, toggles: dict) -> dict | None:
         return None
 
 
+def _directional_metrics(trades: pd.DataFrame) -> dict:
+    """Compute directional aggregates without full trade-log storage."""
+    if trades is None or trades.empty or 'Direction' not in trades.columns:
+        return {}
+
+    def _pick_returns(df: pd.DataFrame):
+        for cand in ('Return [%]', 'return', 'Return', 'PnL', 'pnl'):
+            if cand in df.columns:
+                return pd.to_numeric(df[cand], errors='coerce')
+        return None
+
+    out: dict = {}
+    for side in ('Long', 'Short'):
+        side_df = trades[trades['Direction'].str.lower() == side.lower()]
+        if side_df.empty:
+            continue
+        rets = _pick_returns(side_df)
+        wins = None
+        if rets is not None:
+            rets = rets.dropna()
+            wins = rets[rets > 0]
+        out[f"{side.lower()}_trades"] = int(len(side_df))
+        out[f"{side.lower()}_win_rate"] = float((len(wins) / len(side_df)) * 100) if wins is not None and len(side_df) > 0 else 0.0
+        out[f"{side.lower()}_expectancy"] = float(rets.mean()) if rets is not None and len(rets) > 0 else None
+    return out
+
+
 def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_signals_func) -> tuple[dict, pd.DataFrame]:
     """Evaluate one parameter set and also return per-trade records (readable).
     
@@ -307,6 +336,11 @@ def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_s
         # 'dd_adj': dbg.get('dd_adj'),
         'params': params.copy()
     }
+
+    try:
+        row.update(_directional_metrics(trades))
+    except Exception:
+        pass
 
     # Best-effort regime attribution (parquet-based)
     try:
@@ -466,6 +500,10 @@ def evaluate_collect_kfold(
             # 'dd_adj': dbg.get('dd_adj'),
             'params': params.copy(),
         }
+        try:
+            row.update(_directional_metrics(tdf))
+        except Exception:
+            pass
         rows.append(row)
         try:
             tdf = pf.trades.records_readable.copy()
@@ -626,6 +664,7 @@ def _unit_hypercube_samples(method: str, dim: int, n: int, seed: int) -> np.ndar
 
 def _map_unit_to_params(param_space: dict, names: list[str], unit_samples: np.ndarray) -> list[dict]:
     out = []
+    debug_assert = os.getenv("OPT_DEBUG_ASSERTS", "").lower() in ("1", "true", "yes")
     for row in unit_samples:
         params = {}
         for j, nm in enumerate(names):
@@ -633,13 +672,22 @@ def _map_unit_to_params(param_space: dict, names: list[str], unit_samples: np.nd
             u = row[j]
             ptype = spec[0]
             if ptype == 'int':
-                _, lo, hi = spec
-                # Sample integers inclusively and clamp
-                val = clamp(sample_int(u, int(lo), int(hi)), int(lo), int(hi))
+                # spec: ('int', low, high, step|None)
+                _, lo, hi, step = spec
+                if step is None:
+                    val = clamp(sample_int(u, int(lo), int(hi)), int(lo), int(hi))
+                else:
+                    count = int(((hi - lo) / step) + 1)
+                    idx = clamp(int(np.floor(u * count)), 0, count - 1)
+                    val = int(round(lo + idx * step))
             elif ptype == 'float':
-                _, lo, hi = spec
-                # Sample floats and clamp
-                val = clamp(lo + u * (hi - lo), lo, hi)
+                _, lo, hi, step = spec
+                if step is None:
+                    val = clamp(lo + u * (hi - lo), lo, hi)
+                else:
+                    count = int(((hi - lo) / step) + 1)
+                    idx = clamp(int(np.floor(u * count)), 0, count - 1)
+                    val = lo + idx * step
             else:  # 'cat'
                 _, values = spec
                 values = list(values)
@@ -649,6 +697,8 @@ def _map_unit_to_params(param_space: dict, names: list[str], unit_samples: np.nd
                 if idx >= len(values):
                     idx = len(values) - 1
                 val = values[idx]
+                if debug_assert:
+                    assert val in values, f"Categorical sample {val} not in candidates for {nm}"
             params[nm] = val
         out.append(params)
     return out
@@ -695,7 +745,9 @@ def normalize_param_ranges(param_ranges: dict) -> dict:
     """Accept lists or strings; return dict[str, list]."""
     out = {}
     for k, v in param_ranges.items():
-        if isinstance(v, str):
+        if isinstance(v, dict):
+            out[k] = v
+        elif isinstance(v, str):
             out[k] = _parse_range_string(v)
         elif isinstance(v, (list, tuple, np.ndarray)):
             out[k] = list(v)
@@ -722,34 +774,45 @@ def build_param_space(param_ranges: dict) -> dict:
     Returns dict[str, tuple]:
       - ('int', low, high)
       - ('float', low, high)
-      - ('cat', values_list)
+      - ('cat', values_list)  # default for lists/tuples/ndarrays
+      - explicit dict schema for ranges:
+        {"mode": "range", "dtype": "int|float", "low": ..., "high": ..., "step": optional}
+        {"mode": "cat", "values": [...]}
 
     This enables optimizing discrete/categorical parameters (e.g., HTF timeframes).
     """
     param_space: dict = {}
-    for k, v_list in param_ranges.items():
-        if not isinstance(v_list, (list, tuple, np.ndarray)) or not v_list:
-            raise ValueError(f"Param range for {k} must be a non-empty list or array, got {v_list}")
+    for k, spec in param_ranges.items():
+        # Explicit dict schema
+        if isinstance(spec, dict):
+            mode = spec.get("mode")
+            if mode == "range":
+                dtype = spec.get("dtype", "float")
+                if dtype not in ("int", "float"):
+                    raise ValueError(f"{k}: dtype must be int|float, got {dtype}")
+                if not all(x in spec for x in ("low", "high")):
+                    raise ValueError(f"{k}: range schema requires low/high")
+                low = spec["low"]; high = spec["high"]; step = spec.get("step")
+                if not isinstance(low, numbers.Real) or not isinstance(high, numbers.Real):
+                    raise TypeError(f"{k}: low/high must be numeric")
+                if step is not None and not isinstance(step, numbers.Real):
+                    raise TypeError(f"{k}: step must be numeric when provided")
+                param_space[k] = (dtype, low, high, step)
+                continue
+            if mode == "cat":
+                values = spec.get("values", [])
+                if not isinstance(values, (list, tuple, np.ndarray)) or len(values) == 0:
+                    raise ValueError(f"{k}: categorical schema must include non-empty values")
+                param_space[k] = ('cat', list(values))
+                continue
+            raise ValueError(f"{k}: unknown schema mode {mode}")
 
-        # Bool-only lists should be treated as categorical (avoid 0/1 leakage in LHS/Sobol)
-        if all(isinstance(x, bool) for x in v_list):
-            param_space[k] = ('cat', list(v_list))
-            continue
-
-        # Categorical / mixed types: treat as discrete choices
-        all_numeric = all(isinstance(x, (int, float)) for x in v_list)
-        if not all_numeric:
-            param_space[k] = ('cat', list(v_list))
-            continue
-
-        # Infer type based on numeric values in the list
-        is_int = all(isinstance(x, int) or (isinstance(x, float) and x.is_integer()) for x in v_list)
-        ptype = 'int' if is_int else 'float'
-
-        low = min(v_list)
-        high = max(v_list)
-
-        param_space[k] = (ptype, low, high)
+        # Default: lists/tuples/ndarrays are categorical
+        if not isinstance(spec, (list, tuple, np.ndarray)):
+            raise ValueError(f"Param range for {k} must be list/tuple/ndarray or schema dict, got {type(spec)}")
+        if len(spec) == 0:
+            raise ValueError(f"Param range for {k} is empty")
+        param_space[k] = ('cat', list(spec))
     return param_space
 
 def _frange(start: float, end: float, step: float) -> list:

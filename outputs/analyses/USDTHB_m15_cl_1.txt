@@ -1,0 +1,82 @@
+Chart: USDTHB_m15_cl_1
+Path: data\charts_cl\USDTHB_m15_cl_1.csv
+Bars: 576 | Timeframe: 1d
+Date-time range: 2020-01-01 00:00:00 → 2021-07-29 00:00:00
+Total return: 10.48%
+Regime segments: 52 | stability: 0.910
+Segment bars - avg: 11.1 | median: 6.5 | max: 89
+Trend distribution (by bars): up 54.2% | range 0.3% | down 45.5%
+Vol distribution (by bars):   low 32.6% | mid 33.3% | high 34.0%
+Top regime transitions: trend_up_mid_vol -> trend_up_high_vol: 6 | trend_up_low_vol -> trend_up_mid_vol: 5 | trend_up_high_vol -> trend_up_mid_vol: 5 | trend_down_mid_vol -> trend_down_low_vol: 5 | trend_down_high_vol -> trend_down_mid_vol: 5
+Regime duration (median bars): range_low_vol: 2 | trend_down_high_vol: 10 | trend_down_low_vol: 20 | trend_down_mid_vol: 6 | trend_up_high_vol: 6 | trend_up_low_vol: 9 | trend_up_mid_vol: 5
+Top +3 segments by return:
+  2020-02-03T00:00:00 → 2020-05-01T00:00:00 | trend_up_high_vol    |    4.68% (89 bars)
+  2020-01-03T00:00:00 → 2020-01-29T00:00:00 | trend_up_low_vol     |    2.65% (27 bars)
+  2021-06-20T00:00:00 → 2021-07-01T00:00:00 | trend_up_mid_vol     |    1.76% (12 bars)
+Top -3 segments by return:
+  2020-05-15T00:00:00 → 2020-06-10T00:00:00 | trend_down_low_vol   |   -2.99% (27 bars)
+  2020-10-31T00:00:00 → 2020-11-11T00:00:00 | trend_down_low_vol   |   -2.70% (12 bars)
+  2020-08-23T00:00:00 → 2020-08-28T00:00:00 | trend_up_mid_vol     |   -1.51% (6 bars)
+Avg return per bar by regime (bps):
+  range_low_vol         : 71.628
+  trend_down_high_vol   : 3.626
+  trend_down_mid_vol    : 2.952
+  trend_up_mid_vol      : 2.377
+  trend_up_low_vol      : 0.227
+  trend_up_high_vol     : -0.684
+  trend_down_low_vol    : -1.415
+
+Detected regimes (contiguous segments):
+     start        end  bars              regime  close_start  close_end  return_pct
+2020-01-01 2020-01-02     2       range_low_vol       29.737     30.163    1.432559
+2020-01-03 2020-01-29    27    trend_up_low_vol       30.175     30.974    2.647887
+2020-01-30 2020-02-02     4    trend_up_mid_vol       31.088     31.214    0.405301
+2020-02-03 2020-05-01    89   trend_up_high_vol       31.060     32.515    4.684482
+2020-05-02 2020-05-03     2    trend_up_mid_vol       32.515     32.515    0.000000
+2020-05-04 2020-05-04     1   trend_up_high_vol       32.390     32.390    0.000000
+2020-05-05 2020-05-08     4    trend_up_mid_vol       32.373     32.200   -0.534396
+2020-05-09 2020-05-14     6  trend_down_mid_vol       32.200     32.104   -0.298137
+2020-05-15 2020-06-10    27  trend_down_low_vol       32.088     31.130   -2.985540
+2020-06-11 2020-06-18     8  trend_down_mid_vol       31.078     31.101    0.074007
+2020-06-19 2020-07-01    13 trend_down_high_vol       31.023     31.041    0.058021
+2020-07-02 2020-07-05     4  trend_down_mid_vol       31.075     31.111    0.115849
+2020-07-06 2020-07-14     9  trend_down_low_vol       31.109     31.536    1.372593
+2020-07-15 2020-07-18     4  trend_down_mid_vol       31.547     31.677    0.412084
+2020-07-19 2020-07-26     8    trend_up_mid_vol       31.677     31.615   -0.195726
+2020-07-27 2020-07-31     5   trend_up_high_vol       31.487     31.168   -1.013117
+2020-08-01 2020-08-15    15 trend_down_high_vol       31.168     31.128   -0.128337
+2020-08-16 2020-08-22     7  trend_down_mid_vol       31.128     31.581    1.455281
+2020-08-23 2020-08-28     6    trend_up_mid_vol       31.581     31.104   -1.510402
+2020-08-29 2020-08-29     1  trend_down_mid_vol       31.104     31.104    0.000000
+2020-08-30 2020-09-05     7 trend_down_high_vol       31.104     31.396    0.938786
+2020-09-06 2020-09-11     6   trend_up_high_vol       31.396     31.281   -0.366289
+2020-09-12 2020-09-15     4    trend_up_mid_vol       31.281     31.188   -0.297305
+2020-09-16 2020-09-23     8  trend_down_mid_vol       31.096     31.584    1.569334
+2020-09-24 2020-10-08    15    trend_up_mid_vol       31.588     31.205   -1.212486
+2020-10-09 2020-10-09     1   trend_up_high_vol       31.008     31.008    0.000000
+2020-10-10 2020-10-25    16 trend_down_high_vol       31.008     31.306    0.961042
+2020-10-26 2020-10-30     5  trend_down_mid_vol       31.270     31.174   -0.307004
+2020-10-31 2020-11-11    12  trend_down_low_vol       31.174     30.333   -2.697761
+2020-11-12 2020-11-15     4  trend_down_mid_vol       30.225     30.183   -0.138958
+2020-11-16 2020-11-16     1 trend_down_high_vol       30.209     30.209    0.000000
+2020-11-17 2020-11-17     1  trend_down_mid_vol       30.164     30.164    0.000000
+2020-11-18 2020-11-23     6 trend_down_high_vol       30.305     30.355    0.164989
+2020-11-24 2020-12-03    10  trend_down_mid_vol       30.334     30.192   -0.468122
+2020-12-04 2020-12-29    26  trend_down_low_vol       30.194     30.054   -0.463668
+2020-12-30 2021-01-26    28  trend_down_mid_vol       29.942     29.955    0.043417
+2021-01-27 2021-02-25    30  trend_down_low_vol       29.999     30.294    0.983366
+2021-02-26 2021-03-06     9    trend_up_low_vol       30.445     30.523    0.256200
+2021-03-07 2021-03-08     2    trend_up_mid_vol       30.523     30.808    0.933722
+2021-03-09 2021-03-27    19   trend_up_high_vol       30.731     31.103    1.210504
+2021-03-28 2021-05-01    35    trend_up_mid_vol       31.103     31.133    0.096454
+2021-05-02 2021-05-10     9    trend_up_low_vol       31.133     31.114   -0.061028
+2021-05-11 2021-05-16     6    trend_up_mid_vol       31.172     31.359    0.599897
+2021-05-17 2021-05-17     1    trend_up_low_vol       31.481     31.481    0.000000
+2021-05-18 2021-05-18     1    trend_up_mid_vol       31.423     31.423    0.000000
+2021-05-19 2021-06-04    17    trend_up_low_vol       31.435     31.145   -0.922539
+2021-06-05 2021-06-18    14  trend_down_low_vol       31.145     31.507    1.162305
+2021-06-19 2021-06-19     1    trend_up_low_vol       31.507     31.507    0.000000
+2021-06-20 2021-07-01    12    trend_up_mid_vol       31.507     32.063    1.764687
+2021-07-02 2021-07-18    17   trend_up_high_vol       32.247     32.792    1.690080
+2021-07-19 2021-07-23     5    trend_up_mid_vol       32.859     32.951    0.279984
+2021-07-24 2021-07-29     6    trend_up_low_vol       32.951     32.853   -0.297411

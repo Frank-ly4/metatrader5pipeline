@@ -1,0 +1,173 @@
+{
+  "analysis_id": "USDSEK_4h_cl_8",
+  "chart": {
+    "path": "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_8.csv",
+    "name": "USDSEK_4h_cl_8"
+  },
+  "regime_params": {
+    "momentum_len": 20,
+    "vol_len": 20,
+    "trend_threshold": 0.0,
+    "use_mcg_trend": true,
+    "hma_len": 20,
+    "hysteresis": 2
+  },
+  "summary": {
+    "bars": 24,
+    "start": "2021-12-13T00:00:00",
+    "end": "2022-01-05T00:00:00",
+    "timeframe": "1d",
+    "total_return_pct": 0.21514885528930439,
+    "num_segments": 3,
+    "avg_segment_bars": 8.0,
+    "median_segment_bars": 7.0,
+    "max_segment_bars": 15,
+    "stability_score": 0.875,
+    "regime_transitions": {
+      "range_low_vol -> trend_up_low_vol": 1,
+      "trend_up_low_vol -> trend_down_low_vol": 1
+    },
+    "regime_durations": {
+      "range_low_vol": {
+        "min": 2,
+        "max": 2,
+        "median": 2.0,
+        "avg": 2.0
+      },
+      "trend_down_low_vol": {
+        "min": 7,
+        "max": 7,
+        "median": 7.0,
+        "avg": 7.0
+      },
+      "trend_up_low_vol": {
+        "min": 15,
+        "max": 15,
+        "median": 15.0,
+        "avg": 15.0
+      }
+    },
+    "trend_distribution": {
+      "trend_up": {
+        "bars": 15,
+        "pct": 62.5
+      },
+      "trend_down": {
+        "bars": 7,
+        "pct": 29.166666666666668
+      },
+      "range": {
+        "bars": 2,
+        "pct": 8.333333333333332
+      }
+    },
+    "vol_distribution": {
+      "low": {
+        "bars": 22,
+        "pct": 91.66666666666666
+      },
+      "mid": {
+        "bars": 2,
+        "pct": 8.333333333333332
+      },
+      "high": {
+        "bars": 0,
+        "pct": 0.0
+      }
+    },
+    "top_best_segments": [
+      {
+        "start": "2021-12-30T00:00:00",
+        "end": "2022-01-05T00:00:00",
+        "bars": 7,
+        "regime": "trend_down_low_vol",
+        "close_start": 9.04408,
+        "close_end": 9.11094,
+        "return_pct": 0.7392681179290816
+      },
+      {
+        "start": "2021-12-13T00:00:00",
+        "end": "2021-12-14T00:00:00",
+        "bars": 2,
+        "regime": "range_low_vol",
+        "close_start": 9.09138,
+        "close_end": 9.13939,
+        "return_pct": 0.5280826453189835
+      },
+      {
+        "start": "2021-12-15T00:00:00",
+        "end": "2021-12-29T00:00:00",
+        "bars": 15,
+        "regime": "trend_up_low_vol",
+        "close_start": 9.08466,
+        "close_end": 9.03053,
+        "return_pct": -0.5958395801273664
+      }
+    ],
+    "top_worst_segments": [
+      {
+        "start": "2021-12-15T00:00:00",
+        "end": "2021-12-29T00:00:00",
+        "bars": 15,
+        "regime": "trend_up_low_vol",
+        "close_start": 9.08466,
+        "close_end": 9.03053,
+        "return_pct": -0.5958395801273664
+      },
+      {
+        "start": "2021-12-13T00:00:00",
+        "end": "2021-12-14T00:00:00",
+        "bars": 2,
+        "regime": "range_low_vol",
+        "close_start": 9.09138,
+        "close_end": 9.13939,
+        "return_pct": 0.5280826453189835
+      },
+      {
+        "start": "2021-12-30T00:00:00",
+        "end": "2022-01-05T00:00:00",
+        "bars": 7,
+        "regime": "trend_down_low_vol",
+        "close_start": 9.04408,
+        "close_end": 9.11094,
+        "return_pct": 0.7392681179290816
+      }
+    ],
+    "regime_avg_ret_per_bar": {
+      "range_low_vol": 0.26404132265949176,
+      "trend_down_low_vol": 0.10560973113272595,
+      "trend_up_low_vol": -0.03972263867515776
+    }
+  },
+  "segments": [
+    {
+      "start": "2021-12-13T00:00:00",
+      "end": "2021-12-14T00:00:00",
+      "bars": 2,
+      "regime": "range_low_vol",
+      "close_start": 9.09138,
+      "close_end": 9.13939,
+      "return_pct": 0.5280826453189835
+    },
+    {
+      "start": "2021-12-15T00:00:00",
+      "end": "2021-12-29T00:00:00",
+      "bars": 15,
+      "regime": "trend_up_low_vol",
+      "close_start": 9.08466,
+      "close_end": 9.03053,
+      "return_pct": -0.5958395801273664
+    },
+    {
+      "start": "2021-12-30T00:00:00",
+      "end": "2022-01-05T00:00:00",
+      "bars": 7,
+      "regime": "trend_down_low_vol",
+      "close_start": 9.04408,
+      "close_end": 9.11094,
+      "return_pct": 0.7392681179290816
+    }
+  ],
+  "generated_at": "20260106_213427",
+  "version": "analysis_v1"
+}

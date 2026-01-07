@@ -12,6 +12,7 @@ import argparse
 import os
 import time
 import json
+import numbers
 import pandas as pd
 import numpy as np
 from config.user_inputs import BACKTEST_CONFIG as USER_BACKTEST_CONFIG, TOGGLES
@@ -23,6 +24,7 @@ from src.io.fast_io import (
     single_concat_operation,
     vectorized_trial_uid_creation,
 )
+from src.io.chart_meta import parse_chart_name
 
 
 def get_strategy_selection():
@@ -344,8 +346,45 @@ def main():
     try:
         strategy_module = __import__(f"src.strategy.bands_{strategy_version}", fromlist=["compute_signals"])
         compute_signals_func = strategy_module.compute_signals
-        params_module = __import__(f"config.strategy_params_{strategy_version}", fromlist=["TEST_RANGES"])
-        RAW_PARAM_RANGES = params_module.TEST_RANGES
+        params_module = __import__(f"config.strategy_params_{strategy_version}", fromlist=["TEST_RANGES", "sanitize_test_ranges"])
+        raw_ranges = getattr(params_module, "TEST_RANGES")
+        if hasattr(params_module, "sanitize_test_ranges"):
+            RAW_PARAM_RANGES = params_module.sanitize_test_ranges(dict(raw_ranges))
+        else:
+            RAW_PARAM_RANGES = dict(raw_ranges)
+        # Pre-run summary
+        print("\n🧼 Parameter range summary (lists are categorical; ranges require explicit schema)")
+        for k, v in RAW_PARAM_RANGES.items():
+            mode = "categorical"
+            n = None
+            v_min = None
+            v_max = None
+            if isinstance(v, dict):
+                mode = v.get("mode", "range")
+                if mode == "range":
+                    n = "∞"
+                    v_min, v_max = v.get("low"), v.get("high")
+                elif mode == "cat":
+                    vals = v.get("values", [])
+                    if not vals:
+                        raise ValueError(f"{k} has no candidates after sanitization")
+                    n = len(vals)
+                    nums = [x for x in vals if isinstance(x, numbers.Real)]
+                    if nums:
+                        v_min, v_max = min(nums), max(nums)
+                else:
+                    raise ValueError(f"{k} unknown schema mode {mode}")
+            else:
+                if not isinstance(v, (list, tuple, np.ndarray)):
+                    raise TypeError(f"{k} must be list/tuple or schema dict after sanitization")
+                if len(v) == 0:
+                    raise ValueError(f"{k} has no candidates after sanitization")
+                n = len(v)
+                nums = [x for x in v if isinstance(x, numbers.Real)]
+                if nums:
+                    v_min, v_max = min(nums), max(nums)
+            print(f"  - {k}: mode={mode}, candidates={n}, min={v_min}, max={v_max}")
+        print("")
         print(f"✅ Loaded Strategy: {strategy_version.upper()}")
     except ImportError as e:
         print(f"❌ Failed to load strategy '{strategy_version}': {e}")
@@ -389,10 +428,18 @@ def main():
     completed = 0
     
     # Process each selected chart
+    charts_meta = []
     for chart_idx, chart_path in enumerate(selected_charts):
         chart_name = os.path.basename(chart_path)
         
         price = load_chart_from_path(chart_path)
+        meta = parse_chart_name(chart_path, price.index)
+        meta.update({
+            "bars": len(price),
+            "start": str(price.index[0]) if len(price) > 0 else None,
+            "end": str(price.index[-1]) if len(price) > 0 else None,
+        })
+        charts_meta.append(meta)
         
         print(f"\n📊 Processing chart {chart_idx+1}/{len(selected_charts)}: {chart_name}")
         
@@ -407,6 +454,8 @@ def main():
             # Build per-trial toggles so we can pass chart context downstream
             trial_toggles = dict(TOGGLES)
             trial_toggles['chart_name'] = chart_name
+            trial_toggles['symbol'] = meta.get('symbol')
+            trial_toggles['timeframe'] = meta.get('timeframe')
 
             if params['kfold'] > 0:
                 rows, trades_df = evaluate_collect_kfold(
@@ -422,6 +471,8 @@ def main():
                     
                     fold_row.update({
                         'chart': chart_name,
+                        'symbol': meta.get('symbol'),
+                        'timeframe': meta.get('timeframe'),
                         'trial_id': trial_counter,
                         'method': params['method'],
                     })
@@ -442,6 +493,8 @@ def main():
                 
                 row.update({
                     'chart': chart_name,
+                    'symbol': meta.get('symbol'),
+                    'timeframe': meta.get('timeframe'),
                     'trial_id': trial_counter,
                     'method': params['method'],
                 })
@@ -520,6 +573,7 @@ def main():
         'seed': params['seed'],
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
         'charts_processed': [os.path.basename(p) for p in selected_charts],
+        'charts': charts_meta,
         'kfold': params['kfold'],
         'embargo_frac': params['embargo_frac'],
         'performance_mode': params['performance_mode']
@@ -572,6 +626,101 @@ def main():
             
         except Exception as e:
             print(f"   ❌ CSV failed: {e}")
+
+    # Run-level summary artifact
+    try:
+        runs_dir = os.path.join(out_dir, 'runs', run_id)
+        os.makedirs(runs_dir, exist_ok=True)
+        ts_tag = time.strftime('%Y%m%d_%H%M')
+
+        def _dd_pct(val):
+            try:
+                if val is None or pd.isna(val):
+                    return None
+                return float(val if abs(val) > 1 else val * 100.0)
+            except Exception:
+                return None
+
+        summary = {
+            'run_id': run_id,
+            'created_at': metadata['timestamp'],
+            'strategy_version': strategy_version,
+            'method': params['method'],
+            'metric': params['metric'],
+            'seed': params['seed'],
+            'trials_per_chart': params['trials'],
+            'total_trials': total_trials,
+            'charts': metadata.get('charts', []),
+            'filters': {
+                'max_drawdown_pct': 4.0,
+                'min_trades': 30,
+                'min_sharpe': 1.0,
+                'min_calmar': 0.5,
+            },
+            'top_profiles': [],
+            'strong_profiles': [],
+            'directional_totals': {},
+        }
+
+        def _row_extract(row):
+            dd_pct = _dd_pct(row.get('max_drawdown'))
+            return {
+                'trial_id': row.get('trial_id'),
+                'trial_uid': row.get('trial_uid'),
+                'chart': row.get('chart'),
+                'symbol': row.get('symbol'),
+                'timeframe': row.get('timeframe'),
+                'total_return': row.get('total_return'),
+                'sharpe_ratio': row.get('sharpe_ratio'),
+                'calmar_ratio': row.get('calmar_ratio'),
+                'max_drawdown_pct': dd_pct,
+                'total_trades': row.get('total_trades'),
+                'long_trades': row.get('long_trades'),
+                'short_trades': row.get('short_trades'),
+                'long_win_rate': row.get('long_win_rate'),
+                'short_win_rate': row.get('short_win_rate'),
+                'long_expectancy': row.get('long_expectancy'),
+                'short_expectancy': row.get('short_expectancy'),
+            }
+
+        if len(results_df) > 0:
+            top_slice = results_df.head(10)
+            summary['top_profiles'] = [_row_extract(r) for r in top_slice.to_dict('records')]
+
+            dd_limit = summary['filters']['max_drawdown_pct']
+            min_trades = summary['filters']['min_trades']
+            min_sharpe = summary['filters']['min_sharpe']
+            min_calmar = summary['filters']['min_calmar']
+
+            def _passes(row):
+                dd_pct = _dd_pct(row.get('max_drawdown'))
+                if dd_pct is None or dd_pct > dd_limit:
+                    return False
+                if row.get('total_trades', 0) < min_trades:
+                    return False
+                if row.get('sharpe_ratio', 0) < min_sharpe:
+                    return False
+                if row.get('calmar_ratio', 0) < min_calmar:
+                    return False
+                return True
+
+            strong_rows = [r for r in results_df.to_dict('records') if _passes(r)]
+            summary['strong_profiles'] = [_row_extract(r) for r in strong_rows]
+
+            # Directional totals
+            for fld in ('long_trades', 'short_trades'):
+                if fld in results_df.columns:
+                    summary['directional_totals'][fld] = int(results_df[fld].fillna(0).sum())
+            for fld in ('long_win_rate', 'short_win_rate', 'long_expectancy', 'short_expectancy'):
+                if fld in results_df.columns:
+                    summary['directional_totals'][f"{fld}_avg"] = float(results_df[fld].dropna().mean()) if len(results_df[fld].dropna()) else None
+
+        summary_path = os.path.join(runs_dir, f"summary_{ts_tag}.json")
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2, default=str)
+        print(f"   ✅ Summary: runs/{run_id}/summary_{ts_tag}.json")
+    except Exception as e:
+        print(f"   ❌ Summary generation failed: {e}")
     
     # Final summary
     total_time = time.time() - start_time

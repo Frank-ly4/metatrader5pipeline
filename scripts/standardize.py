@@ -7,6 +7,30 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 
+TF_ALIAS_MAP = {
+    'daily': '1d',
+    'd': '1d',
+    '1d': '1d',
+    'h4': '4h',
+    '4h': '4h',
+    'h1': '1h',
+    '1h': '1h',
+    'h': '1h',
+    'm30': '30m',
+    '30m': '30m',
+    '30min': '30m',
+    'm15': '15m',
+    '15m': '15m',
+    '15min': '15m',
+    'm5': '5m',
+    '5m': '5m',
+    '5min': '5m',
+    'm1': '1m',
+    '1m': '1m',
+    '1min': '1m',
+}
+
+
 def _infer_interval_from_index(dt_index: pd.DatetimeIndex) -> tuple[str, str]:
     inferred = pd.infer_freq(dt_index)
     if inferred:
@@ -76,15 +100,9 @@ def parse_timeframe_from_filename(filename: str) -> str | None:
     if len(parts) < 2:
         return None
     
-    tf = parts[1]
-    # Normalize timeframe names
-    tf_map = {
-        'Daily': '1d', 'D': '1d', 'daily': '1d',
-        'H4': '4h', 'h4': '4h',
-        'H1': '1h', 'h1': '1h',
-        'H': '1h', 'h': '1h',
-    }
-    return tf_map.get(tf, tf.lower())
+    tf = parts[1].strip()
+    tf_key = tf.lower()
+    return TF_ALIAS_MAP.get(tf_key, tf_key)
 
 
 def get_raw_file_selection(src_dir: str) -> list[str]:
@@ -129,6 +147,47 @@ def get_raw_file_selection(src_dir: str) -> list[str]:
                 return out
         except ValueError:
             print("Invalid input. Use numbers like '1,3,5' or '1-5'.")
+
+
+def _max_flat_streak(series: pd.Series) -> int:
+    if series.empty:
+        return 0
+    values = series.to_numpy()
+    max_streak = 1
+    current = 1
+    prev = values[0]
+    for val in values[1:]:
+        if pd.isna(val) or pd.isna(prev) or val != prev:
+            current = 1
+        else:
+            current += 1
+            if current > max_streak:
+                max_streak = current
+        prev = val
+    return max_streak if len(values) > 0 else 0
+
+
+def compute_validation_metrics(df: pd.DataFrame, pandas_freq: str | None) -> dict:
+    rows_out = len(df)
+    metrics = {
+        'rows_out': rows_out,
+        'missing_bars': 0,
+        'max_gap_minutes': 0,
+        'max_flat_streak': 0,
+    }
+    if rows_out == 0:
+        return metrics
+    if pandas_freq and rows_out > 1:
+        try:
+            expected = pd.date_range(df.index[0], df.index[-1], freq=pandas_freq)
+            metrics['missing_bars'] = len(expected.difference(df.index))
+        except Exception:
+            pass
+    diffs = df.index.to_series().diff().dropna()
+    if not diffs.empty:
+        metrics['max_gap_minutes'] = int(diffs.max().total_seconds() // 60)
+    metrics['max_flat_streak'] = _max_flat_streak(df['Close'])
+    return metrics
 
 
 def normalize_chart(path: str) -> tuple[pd.DataFrame, str, str]:
@@ -287,10 +346,7 @@ def normalize_chart(path: str) -> tuple[pd.DataFrame, str, str]:
             df = _try_mt5_parser(path)
 
     interval_lbl, pandas_freq = _infer_interval_from_index(df.index)
-    try:
-        df = df.asfreq(pandas_freq).ffill()
-    except Exception:
-        pass
+    df = df[~df.index.duplicated(keep='last')].sort_index()
     return df[['Open','High','Low','Close']], interval_lbl, pandas_freq
 
 
@@ -327,7 +383,8 @@ def main():
         os.makedirs(os.path.dirname(args.log_path), exist_ok=True)
         log_headers = [
             'run_ts','asset','interval','source_file','dest_file','assigned_name','size_bytes','status','reason',
-            'rows_in','rows_out','start_ts_in','end_ts_in','start_ts_out','end_ts_out','columns_in'
+            'rows_in','rows_out','missing_bars','max_gap_minutes','max_flat_streak',
+            'start_ts_in','end_ts_in','start_ts_out','end_ts_out','columns_in'
         ]
         write_header = not os.path.exists(args.log_path)
         log_file = open(args.log_path, mode='a', newline='', encoding='utf-8')
@@ -376,7 +433,7 @@ def main():
             cols_in = list(raw_df.columns)
 
             # normalize
-            df, interval_lbl, _ = normalize_chart(src_path)
+            df, interval_lbl, pandas_freq = normalize_chart(src_path)
             
             # Try to detect timeframe from filename, otherwise use inferred
             detected_tf = parse_timeframe_from_filename(fname)
@@ -396,6 +453,7 @@ def main():
             next_index_cache[prefix] = seq_num + 1
             out_path = os.path.join(args.dst, assigned_name)
             df.to_csv(out_path)
+            validation = compute_validation_metrics(df, pandas_freq)
             
             # Track for analysis
             if args.also_copy_active:
@@ -410,6 +468,13 @@ def main():
             except Exception:
                 pass
             print(f"Standardized: {fname} -> {assigned_name}")
+            print(
+                f"[VALIDATE] {assigned_name}: rows_in={rows_in} "
+                f"rows_out={validation['rows_out']} missing_bars={validation['missing_bars']} "
+                f"max_gap_min={validation['max_gap_minutes']} max_flat={validation['max_flat_streak']}"
+            )
+            if interval_lbl == '15m' and validation['max_flat_streak'] > 40:
+                print("  ⚠️ Flat streak exceeds 40 bars; check for data gaps.")
             count += 1
             # write success log row
             if args.log_path:
@@ -424,7 +489,10 @@ def main():
                     'status': 'standardized',
                     'reason': '',
                     'rows_in': rows_in,
-                    'rows_out': len(df),
+                    'rows_out': validation['rows_out'],
+                    'missing_bars': validation['missing_bars'],
+                    'max_gap_minutes': validation['max_gap_minutes'],
+                    'max_flat_streak': validation['max_flat_streak'],
                     'start_ts_in': '' if pd.isna(start_in) else start_in.isoformat(),
                     'end_ts_in': '' if pd.isna(end_in) else end_in.isoformat(),
                     'start_ts_out': '' if df.index.size == 0 else pd.to_datetime(df.index[0]).isoformat(),
@@ -447,6 +515,9 @@ def main():
                     'reason': str(e),
                     'rows_in': '',
                     'rows_out': '',
+                    'missing_bars': '',
+                    'max_gap_minutes': '',
+                    'max_flat_streak': '',
                     'start_ts_in': '',
                     'end_ts_in': '',
                     'start_ts_out': '',

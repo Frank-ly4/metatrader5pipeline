@@ -403,5 +403,306 @@
       "path": "outputs\\analyses\\USDTHB_4h_cl_10.json",
       "generated_at": "20251228_111451"
     }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_1d_cl_4.csv": [
+    {
+      "analysis_id": "USDSEK_1d_cl_4",
+      "path": "outputs\\analyses\\USDSEK_1d_cl_4.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_h12_cl_1.csv": [
+    {
+      "analysis_id": "USDSEK_h12_cl_1",
+      "path": "outputs\\analyses\\USDSEK_h12_cl_1.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_h12_cl_2.csv": [
+    {
+      "analysis_id": "USDSEK_h12_cl_2",
+      "path": "outputs\\analyses\\USDSEK_h12_cl_2.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_h12_cl_3.csv": [
+    {
+      "analysis_id": "USDSEK_h12_cl_3",
+      "path": "outputs\\analyses\\USDSEK_h12_cl_3.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_7.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_7",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_7.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_8.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_8",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_8.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_9.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_9",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_9.json",
+      "generated_at": "20260106_213427"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_10.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_10",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_10.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_11.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_11",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_11.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_12.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_12",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_12.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_13.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_13",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_13.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_4h_cl_14.csv": [
+    {
+      "analysis_id": "USDSEK_4h_cl_14",
+      "path": "outputs\\analyses\\USDSEK_4h_cl_14.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_1.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_1",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_1.json",
+      "generated_at": "20260106_213428"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_2.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_2",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_2.json",
+      "generated_at": "20260106_213430"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_3.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_3",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_3.json",
+      "generated_at": "20260106_213430"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_4.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_4",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_4.json",
+      "generated_at": "20260106_213435"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_5.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_5",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_5.json",
+      "generated_at": "20260106_213439"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_6.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_6",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_6.json",
+      "generated_at": "20260106_213441"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_7.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_7",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_7.json",
+      "generated_at": "20260106_213446"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_m15_cl_8.csv": [
+    {
+      "analysis_id": "USDSEK_m15_cl_8",
+      "path": "outputs\\analyses\\USDSEK_m15_cl_8.json",
+      "generated_at": "20260106_213447"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_1d_cl_7.csv": [
+    {
+      "analysis_id": "USDTHB_1d_cl_7",
+      "path": "outputs\\analyses\\USDTHB_1d_cl_7.json",
+      "generated_at": "20260106_213448"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_h12_cl_1.csv": [
+    {
+      "analysis_id": "USDTHB_h12_cl_1",
+      "path": "outputs\\analyses\\USDTHB_h12_cl_1.json",
+      "generated_at": "20260106_213448"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_4h_cl_11.csv": [
+    {
+      "analysis_id": "USDTHB_4h_cl_11",
+      "path": "outputs\\analyses\\USDTHB_4h_cl_11.json",
+      "generated_at": "20260106_213448"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_1.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_1",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_1.json",
+      "generated_at": "20260106_213448"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_2.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_2",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_2.json",
+      "generated_at": "20260106_213448"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_3.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_3",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_3.json",
+      "generated_at": "20260106_213450"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_4.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_4",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_4.json",
+      "generated_at": "20260106_213452"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_5.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_5",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_5.json",
+      "generated_at": "20260106_213457"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_6.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_6",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_6.json",
+      "generated_at": "20260106_213503"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_7.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_7",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_7.json",
+      "generated_at": "20260106_213505"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_8.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_8",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_8.json",
+      "generated_at": "20260106_213505"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_9.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_9",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_9.json",
+      "generated_at": "20260106_213506"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_m15_cl_10.csv": [
+    {
+      "analysis_id": "USDTHB_m15_cl_10",
+      "path": "outputs\\analyses\\USDTHB_m15_cl_10.json",
+      "generated_at": "20260106_213507"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDJPY_15m_cl_1.csv": [
+    {
+      "analysis_id": "USDJPY_15m_cl_1",
+      "path": "outputs\\analyses\\USDJPY_15m_cl_1.json",
+      "generated_at": "20260107_112350"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDJPY_15m_cl_2.csv": [
+    {
+      "analysis_id": "USDJPY_15m_cl_2",
+      "path": "outputs\\analyses\\USDJPY_15m_cl_2.json",
+      "generated_at": "20260107_112353"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDJPY_15m_cl_3.csv": [
+    {
+      "analysis_id": "USDJPY_15m_cl_3",
+      "path": "outputs\\analyses\\USDJPY_15m_cl_3.json",
+      "generated_at": "20260107_112355"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_15m_cl_1.csv": [
+    {
+      "analysis_id": "USDSEK_15m_cl_1",
+      "path": "outputs\\analyses\\USDSEK_15m_cl_1.json",
+      "generated_at": "20260107_112355"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_15m_cl_2.csv": [
+    {
+      "analysis_id": "USDSEK_15m_cl_2",
+      "path": "outputs\\analyses\\USDSEK_15m_cl_2.json",
+      "generated_at": "20260107_112402"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDSEK_15m_cl_3.csv": [
+    {
+      "analysis_id": "USDSEK_15m_cl_3",
+      "path": "outputs\\analyses\\USDSEK_15m_cl_3.json",
+      "generated_at": "20260107_112407"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_15m_cl_1.csv": [
+    {
+      "analysis_id": "USDTHB_15m_cl_1",
+      "path": "outputs\\analyses\\USDTHB_15m_cl_1.json",
+      "generated_at": "20260107_112409"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_15m_cl_2.csv": [
+    {
+      "analysis_id": "USDTHB_15m_cl_2",
+      "path": "outputs\\analyses\\USDTHB_15m_cl_2.json",
+      "generated_at": "20260107_112411"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_15m_cl_3.csv": [
+    {
+      "analysis_id": "USDTHB_15m_cl_3",
+      "path": "outputs\\analyses\\USDTHB_15m_cl_3.json",
+      "generated_at": "20260107_112416"
+    }
+  ],
+  "C:\\Users\\frank\\OneDrive\\Desktop\\Optimizer_final_draft\\data\\charts_cl\\USDTHB_15m_cl_4.csv": [
+    {
+      "analysis_id": "USDTHB_15m_cl_4",
+      "path": "outputs\\analyses\\USDTHB_15m_cl_4.json",
+      "generated_at": "20260107_112421"
+    }
   ]
 }

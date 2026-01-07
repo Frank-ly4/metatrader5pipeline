@@ -1,0 +1,562 @@
+{
+  "run_id": "20260106_132722",
+  "created_at": "2026-01-06 13:27:22",
+  "strategy_version": "v2",
+  "method": "lhs",
+  "metric": "calmar_ratio",
+  "seed": 42,
+  "trials_per_chart": 20,
+  "total_trials": 900,
+  "charts": [
+    {
+      "symbol": "USDJPY",
+      "timeframe": "1d",
+      "chart": "USDJPY_1d_cl_1",
+      "bars": 8237,
+      "start": "2001-05-21 00:00:00",
+      "end": "2023-12-08 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "1d",
+      "chart": "USDJPY_1d_cl_2",
+      "bars": 2319,
+      "start": "2019-07-11 00:00:00",
+      "end": "2025-11-14 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "4h",
+      "chart": "USDJPY_4h_cl_1",
+      "bars": 51625,
+      "start": "2000-05-18 20:00:00",
+      "end": "2023-12-08 20:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "4h",
+      "chart": "USDJPY_4h_cl_2",
+      "bars": 12181,
+      "start": "2018-05-18 20:00:00",
+      "end": "2023-12-08 20:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "4h",
+      "chart": "USDJPY_4h_cl_3",
+      "bars": 13915,
+      "start": "2019-07-10 20:00:00",
+      "end": "2025-11-14 20:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "4h",
+      "chart": "USDJPY_4h_cl_4",
+      "bars": 5153,
+      "start": "2022-07-11 00:00:00",
+      "end": "2024-11-15 16:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "1d",
+      "chart": "USDSEK_1d_cl_1",
+      "bars": 3963,
+      "start": "2010-02-19 00:00:00",
+      "end": "2020-12-25 00:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "1d",
+      "chart": "USDSEK_1d_cl_2",
+      "bars": 5788,
+      "start": "2010-02-19 00:00:00",
+      "end": "2025-12-24 00:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "1d",
+      "chart": "USDSEK_1d_cl_3",
+      "bars": 2136,
+      "start": "2020-02-19 00:00:00",
+      "end": "2025-12-24 00:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_1",
+      "bars": 12181,
+      "start": "2018-05-18 20:00:00",
+      "end": "2023-12-08 20:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_2",
+      "bars": 12817,
+      "start": "2020-02-18 20:00:00",
+      "end": "2025-12-24 20:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_3",
+      "bars": 7795,
+      "start": "2020-05-18 20:00:00",
+      "end": "2023-12-08 20:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_4",
+      "bars": 2154,
+      "start": "2025-01-02 00:00:00",
+      "end": "2025-12-26 20:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_5",
+      "bars": 819,
+      "start": "2025-03-03 00:00:00",
+      "end": "2025-07-17 08:00:00"
+    },
+    {
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "chart": "USDSEK_4h_cl_6",
+      "bars": 888,
+      "start": "2025-08-01 00:00:00",
+      "end": "2025-12-26 20:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_1",
+      "bars": 2865,
+      "start": "2015-02-19 00:00:00",
+      "end": "2022-12-23 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_2",
+      "bars": 2136,
+      "start": "2020-02-19 00:00:00",
+      "end": "2025-12-24 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_3",
+      "bars": 675,
+      "start": "2024-02-19 00:00:00",
+      "end": "2025-12-24 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_4",
+      "bars": 508,
+      "start": "2023-04-11 00:00:00",
+      "end": "2024-08-30 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_5",
+      "bars": 598,
+      "start": "2023-04-11 00:00:00",
+      "end": "2024-11-28 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "1d",
+      "chart": "USDTHB_1d_cl_6",
+      "bars": 875,
+      "start": "2023-04-11 00:00:00",
+      "end": "2025-09-01 00:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_1",
+      "bars": 5130,
+      "start": "2022-08-18 20:00:00",
+      "end": "2024-12-20 16:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_10",
+      "bars": 861,
+      "start": "2025-04-11 00:00:00",
+      "end": "2025-09-01 08:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_2",
+      "bars": 2940,
+      "start": "2023-08-18 20:00:00",
+      "end": "2024-12-20 16:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_3",
+      "bars": 4050,
+      "start": "2024-02-19 00:00:00",
+      "end": "2025-12-24 20:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_4",
+      "bars": 3048,
+      "start": "2023-04-11 00:00:00",
+      "end": "2024-08-30 20:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_5",
+      "bars": 3585,
+      "start": "2023-04-11 00:00:00",
+      "end": "2024-11-28 08:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_6",
+      "bars": 5247,
+      "start": "2023-04-11 00:00:00",
+      "end": "2025-09-01 08:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_7",
+      "bars": 1263,
+      "start": "2025-01-02 00:00:00",
+      "end": "2025-07-31 08:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_8",
+      "bars": 2151,
+      "start": "2025-01-02 00:00:00",
+      "end": "2025-12-26 08:00:00"
+    },
+    {
+      "symbol": "USDTHB",
+      "timeframe": "4h",
+      "chart": "USDTHB_4h_cl_9",
+      "bars": 819,
+      "start": "2025-03-03 00:00:00",
+      "end": "2025-07-17 08:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "15m",
+      "chart": "XAUUSD_15m_cl_1",
+      "bars": 189918,
+      "start": "2020-04-20 16:30:00",
+      "end": "2025-09-19 23:45:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "15m",
+      "chart": "XAUUSD_15m_cl_2",
+      "bars": 126,
+      "start": "2025-09-18 16:30:00",
+      "end": "2025-09-19 23:45:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "chart": "XAUUSD_1h_cl_1",
+      "bars": 26280,
+      "start": "2020-04-20 17:00:00",
+      "end": "2023-04-20 16:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "chart": "XAUUSD_1h_cl_2",
+      "bars": 26239,
+      "start": "2022-04-20 17:00:00",
+      "end": "2025-04-17 23:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "chart": "XAUUSD_1h_cl_3",
+      "bars": 18319,
+      "start": "2023-08-18 17:00:00",
+      "end": "2025-09-19 23:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "chart": "XAUUSD_1h_cl_4",
+      "bars": 3647,
+      "start": "2025-04-21 01:00:00",
+      "end": "2025-09-19 23:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "chart": "XAUUSD_1h_cl_5",
+      "bars": 775,
+      "start": "2025-08-18 17:00:00",
+      "end": "2025-09-19 23:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1m",
+      "chart": "XAUUSD_1m_cl_1",
+      "bars": 457,
+      "start": "2025-09-19 16:20:00",
+      "end": "2025-09-19 23:56:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1m",
+      "chart": "XAUUSD_1m_cl_2",
+      "bars": 1894,
+      "start": "2025-09-18 16:21:00",
+      "end": "2025-09-19 23:54:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "1m",
+      "chart": "XAUUSD_1m_cl_3",
+      "bars": 454,
+      "start": "2025-09-19 16:21:00",
+      "end": "2025-09-19 23:54:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "4h",
+      "chart": "XAUUSD_4h_cl_1",
+      "bars": 4385,
+      "start": "2021-04-20 00:00:00",
+      "end": "2023-04-20 16:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "4h",
+      "chart": "XAUUSD_4h_cl_5",
+      "bars": 3108,
+      "start": "2021-04-20 20:00:00",
+      "end": "2022-09-20 16:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "4h",
+      "chart": "XAUUSD_4h_cl_6",
+      "bars": 9679,
+      "start": "2021-04-20 20:00:00",
+      "end": "2025-09-19 20:00:00"
+    },
+    {
+      "symbol": "XAUUSD",
+      "timeframe": "5m",
+      "chart": "XAUUSD_5m_cl_1",
+      "bars": 380,
+      "start": "2025-09-18 16:20:00",
+      "end": "2025-09-19 23:55:00"
+    }
+  ],
+  "filters": {
+    "max_drawdown_pct": 4.0,
+    "min_trades": 30,
+    "min_sharpe": 1.0,
+    "min_calmar": 0.5
+  },
+  "top_profiles": [
+    {
+      "trial_id": 551,
+      "trial_uid": "20260106_132722:551",
+      "chart": "XAUUSD_1h_cl_4.csv",
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "total_return": 1.272043279355741,
+      "sharpe_ratio": 1.6153028155512166,
+      "calmar_ratio": 0.044894325393650014,
+      "max_drawdown_pct": 1.5241305684131918,
+      "total_trades": 16,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 549,
+      "trial_uid": "20260106_132722:549",
+      "chart": "XAUUSD_1h_cl_4.csv",
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "total_return": 0.5277408484754996,
+      "sharpe_ratio": 0.8742607833825249,
+      "calmar_ratio": 0.0219593435253979,
+      "max_drawdown_pct": 1.272519566892647,
+      "total_trades": 19,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 25,
+      "trial_uid": "20260106_132722:25",
+      "chart": "USDJPY_1d_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "1d",
+      "total_return": 4.738684152091999,
+      "sharpe_ratio": 0.92694264473064,
+      "calmar_ratio": 0.013543870402411298,
+      "max_drawdown_pct": 1.2469993278494405,
+      "total_trades": 18,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 632,
+      "trial_uid": "20260106_132722:632",
+      "chart": "XAUUSD_4h_cl_6.csv",
+      "symbol": "XAUUSD",
+      "timeframe": "4h",
+      "total_return": 12.62836588782283,
+      "sharpe_ratio": 1.12208015758413,
+      "calmar_ratio": 0.01327411060228195,
+      "max_drawdown_pct": 4.391289552571383,
+      "total_trades": 100,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 32,
+      "trial_uid": "20260106_132722:32",
+      "chart": "USDJPY_1d_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "1d",
+      "total_return": 11.916197823303198,
+      "sharpe_ratio": 0.8801342336984911,
+      "calmar_ratio": 0.012959394211103733,
+      "max_drawdown_pct": 3.2073938182850363,
+      "total_trades": 21,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 35,
+      "trial_uid": "20260106_132722:35",
+      "chart": "USDJPY_1d_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "1d",
+      "total_return": 9.144267604610679,
+      "sharpe_ratio": 0.8578460332611889,
+      "calmar_ratio": 0.012910229477909955,
+      "max_drawdown_pct": 2.4909734637426597,
+      "total_trades": 22,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 603,
+      "trial_uid": "20260106_132722:603",
+      "chart": "XAUUSD_4h_cl_5.csv",
+      "symbol": "XAUUSD",
+      "timeframe": "4h",
+      "total_return": 2.2387831622472585,
+      "sharpe_ratio": 1.0136098667542748,
+      "calmar_ratio": 0.012598442851024499,
+      "max_drawdown_pct": 2.7891793891500476,
+      "total_trades": 30,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 243,
+      "trial_uid": "20260106_132722:243",
+      "chart": "USDSEK_4h_cl_4.csv",
+      "symbol": "USDSEK",
+      "timeframe": "4h",
+      "total_return": 0.8191696178059356,
+      "sharpe_ratio": 0.5601857172697391,
+      "calmar_ratio": 0.00958324748438364,
+      "max_drawdown_pct": 2.0306950355620113,
+      "total_trades": 17,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 511,
+      "trial_uid": "20260106_132722:511",
+      "chart": "XAUUSD_1h_cl_2.csv",
+      "symbol": "XAUUSD",
+      "timeframe": "1h",
+      "total_return": 2.4061050715411403,
+      "sharpe_ratio": 0.7098236345651487,
+      "calmar_ratio": 0.009294413182676887,
+      "max_drawdown_pct": 1.813155048396703,
+      "total_trades": 47,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 164,
+      "trial_uid": "20260106_132722:164",
+      "chart": "USDSEK_1d_cl_3.csv",
+      "symbol": "USDSEK",
+      "timeframe": "1d",
+      "total_return": 7.496145036276255,
+      "sharpe_ratio": 0.9044338907986463,
+      "calmar_ratio": 0.008903533856651734,
+      "max_drawdown_pct": 3.274844370695206,
+      "total_trades": 18,
+      "long_trades": null,
+      "short_trades": null,
+      "long_win_rate": null,
+      "short_win_rate": null,
+      "long_expectancy": null,
+      "short_expectancy": null
+    }
+  ],
+  "strong_profiles": [],
+  "directional_totals": {}
+}

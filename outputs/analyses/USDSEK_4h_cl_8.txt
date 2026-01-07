@@ -1,0 +1,29 @@
+Chart: USDSEK_4h_cl_8
+Path: data\charts_cl\USDSEK_4h_cl_8.csv
+Bars: 24 | Timeframe: 1d
+Date-time range: 2021-12-13 00:00:00 → 2022-01-05 00:00:00
+Total return: 0.22%
+Regime segments: 3 | stability: 0.875
+Segment bars - avg: 8.0 | median: 7.0 | max: 15
+Trend distribution (by bars): up 62.5% | range 8.3% | down 29.2%
+Vol distribution (by bars):   low 91.7% | mid 8.3% | high 0.0%
+Top regime transitions: range_low_vol -> trend_up_low_vol: 1 | trend_up_low_vol -> trend_down_low_vol: 1
+Regime duration (median bars): range_low_vol: 2 | trend_down_low_vol: 7 | trend_up_low_vol: 15
+Top +3 segments by return:
+  2021-12-30T00:00:00 → 2022-01-05T00:00:00 | trend_down_low_vol   |    0.74% (7 bars)
+  2021-12-13T00:00:00 → 2021-12-14T00:00:00 | range_low_vol        |    0.53% (2 bars)
+  2021-12-15T00:00:00 → 2021-12-29T00:00:00 | trend_up_low_vol     |   -0.60% (15 bars)
+Top -3 segments by return:
+  2021-12-15T00:00:00 → 2021-12-29T00:00:00 | trend_up_low_vol     |   -0.60% (15 bars)
+  2021-12-13T00:00:00 → 2021-12-14T00:00:00 | range_low_vol        |    0.53% (2 bars)
+  2021-12-30T00:00:00 → 2022-01-05T00:00:00 | trend_down_low_vol   |    0.74% (7 bars)
+Avg return per bar by regime (bps):
+  range_low_vol         : 26.404
+  trend_down_low_vol    : 10.561
+  trend_up_low_vol      : -3.972
+
+Detected regimes (contiguous segments):
+     start        end  bars             regime  close_start  close_end  return_pct
+2021-12-13 2021-12-14     2      range_low_vol      9.09138    9.13939    0.528083
+2021-12-15 2021-12-29    15   trend_up_low_vol      9.08466    9.03053   -0.595840
+2021-12-30 2022-01-05     7 trend_down_low_vol      9.04408    9.11094    0.739268
