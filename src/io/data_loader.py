@@ -51,21 +51,11 @@ def load_chart_from_path(path: str) -> pd.DataFrame:
         raise ValueError(f"Chart must contain columns: {required}")
 
 
-    # Optional lightweight gap-fill (skip full asfreq which is O(N) memory)
+    # Keep only real bars: sort + dedupe timestamps, do NOT synthesize missing bars.
     df.index = pd.to_datetime(df.index, errors='coerce')
     if df.index.hasnans:
         df = df[~df.index.isna()]
-
-    # Detect irregularity: if >1 % of deltas differ from median → skip asfreq
-    try:
-        deltas = df.index.to_series().diff().dropna()
-        if len(deltas) > 5:
-            med = deltas.median()
-            irr = (deltas != med).mean() > 0.01
-            if not irr:
-                df = df.asfreq(med).ffill()
-    except Exception:
-        pass
+    df = df[~df.index.duplicated(keep='last')].sort_index()
 
     # Write/update Parquet cache for next run (best-effort)
     try:

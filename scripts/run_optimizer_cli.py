@@ -25,6 +25,7 @@ from src.io.fast_io import (
     vectorized_trial_uid_creation,
 )
 from src.io.chart_meta import parse_chart_name
+from src.io.chart_guardrails import validate_chart_guardrails
 
 
 def get_strategy_selection():
@@ -203,40 +204,9 @@ def get_optimization_parameters(strategy_version='v1'):
             except ValueError:
                 print("❌ Please enter a valid percentage or decimal.")
     
-    # Performance mode
-    print(f"\n⚡ PERFORMANCE OPTIONS:")
-    print("  1. MAXIMUM SPEED (JSON only, minimal processing)")
-    print("  2. BALANCED (Excel + optimizations)")
-    print("  3. FULL FEATURES (Excel with all sheets)")
-    
-    while True:
-        try:
-            perf_input = input(f"\nSelect performance mode [1]: ").strip()
-            perf_mode = int(perf_input) if perf_input else 1
-            if 1 <= perf_mode <= 3:
-                break
-            else:
-                print("❌ Please select 1-3.")
-        except ValueError:
-            print("❌ Please enter a valid number.")
-    
-    # Metric selection
-    metrics = ['total_return', 'sharpe_ratio', 'sortino_ratio', 'calmar_ratio']
-    print(f"\n📈 OPTIMIZATION METRIC:")
-    for i, metric in enumerate(metrics, 1):
-        print(f"  {i}. {metric}")
-    
-    while True:
-        try:
-            metric_input = input(f"\nSelect metric (1-4) [1=total_return]: ").strip()
-            metric_idx = int(metric_input) - 1 if metric_input else 0
-            if 0 <= metric_idx < len(metrics):
-                metric = metrics[metric_idx]
-                break
-            else:
-                print("❌ Please select 1-4.")
-        except ValueError:
-            print("❌ Please enter a valid number.")
+    # Hardcoded defaults (removed interactive prompts)
+    perf_mode = 1  # MAXIMUM SPEED
+    metric = 'calmar_ratio'
     
     return {
         'method': method,
@@ -434,6 +404,17 @@ def main():
         
         price = load_chart_from_path(chart_path)
         meta = parse_chart_name(chart_path, price.index)
+        guard = validate_chart_guardrails(
+            price,
+            chart_name=chart_name,
+            symbol=meta.get("symbol"),
+            timeframe=meta.get("timeframe"),
+            require_no_weekend_bars=True,
+            min_bars=500,
+        )
+        if not guard.ok:
+            print(f"❌ Guardrails failed for {chart_name}. Skipping chart.")
+            continue
         meta.update({
             "bars": len(price),
             "start": str(price.index[0]) if len(price) > 0 else None,

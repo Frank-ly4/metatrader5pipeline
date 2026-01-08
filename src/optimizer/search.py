@@ -215,8 +215,13 @@ def _compute_regime_stats(trades: pd.DataFrame, toggles: dict) -> dict | None:
 
 def _directional_metrics(trades: pd.DataFrame) -> dict:
     """Compute directional aggregates without full trade-log storage."""
-    if trades is None or trades.empty or 'Direction' not in trades.columns:
+    if trades is None or trades.empty:
         return {}
+
+    # If no Direction column, assume all trades are Long (long-only backtests)
+    if 'Direction' not in trades.columns:
+        trades = trades.copy()
+        trades['Direction'] = 'Long'
 
     def _pick_returns(df: pd.DataFrame):
         for cand in ('Return [%]', 'return', 'Return', 'PnL', 'pnl'):

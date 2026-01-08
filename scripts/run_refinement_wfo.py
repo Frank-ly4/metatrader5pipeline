@@ -20,6 +20,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from config.user_inputs import TOGGLES
 from config.strategy_params_v1 import PARAM_RANGES
 from src.io.data_loader import load_chart_from_path
+from src.io.chart_guardrails import validate_chart_guardrails
 from src.optimizer.search import normalize_param_ranges, sample_param_sets, evaluate_collect
 from src.optimizer.wfo import anchored_walk_forward, check_parameter_fragility
 from src.strategy.bands_v1 import compute_signals
@@ -117,6 +118,16 @@ def run_refinement(
         
         try:
             price = load_chart_from_path(chart_path)
+            guard = validate_chart_guardrails(
+                price,
+                chart_name=chart_name,
+                symbol=None,
+                timeframe=None,
+                require_no_weekend_bars=True,
+            )
+            if not guard.ok:
+                print(f"  ❌ Guardrails failed for {chart_name}. Skipping chart.")
+                continue
             print(f"  Loaded {len(price)} bars")
         except Exception as e:
             print(f"  ERROR loading chart: {e}")
@@ -215,6 +226,16 @@ def run_wfo_validation(
         
         try:
             price = load_chart_from_path(chart_path)
+            guard = validate_chart_guardrails(
+                price,
+                chart_name=chart_name,
+                symbol=None,
+                timeframe=None,
+                require_no_weekend_bars=True,
+            )
+            if not guard.ok:
+                print(f"  ❌ Guardrails failed for {chart_name}. Skipping chart.")
+                continue
             print(f"  Loaded {len(price)} bars")
         except Exception as e:
             print(f"  ERROR loading chart: {e}")

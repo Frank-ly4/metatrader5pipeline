@@ -16,7 +16,11 @@ METRIC_KEYS = {
     'end_capital','avg_hold_hours','ulcer_index','omega_0','omega_fees',
     'chart','trial_id','method','trial_uid','uid','score','is_pareto',
     'stability_score','group_rank','fold_id','_source_file','bars_total',
-    'bars_train','bars_embargo','bars_val','val_start','val_end'
+    'bars_train','bars_embargo','bars_val','val_start','val_end',
+    # meta columns added in optimizer outputs
+    'symbol','timeframe',
+    'long_trades','short_trades','long_win_rate','short_win_rate',
+    'long_expectancy','short_expectancy',
 }
 
 # Factory defaults for parameters that might be missing in old results
