@@ -1,0 +1,504 @@
+{
+  "run_id": "20260110_195626",
+  "created_at": "2026-01-10 19:56:26",
+  "strategy_version": "v2",
+  "method": "sobol",
+  "metric": "calmar_ratio",
+  "seed": 42,
+  "trials_per_chart": 512,
+  "total_trials": 18432,
+  "charts": [
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_1",
+      "bars": 18637,
+      "start": "2022-08-18 00:00:00",
+      "end": "2023-06-02 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_10",
+      "bars": 30143,
+      "start": "2024-03-08 00:00:00",
+      "end": "2025-05-26 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_11",
+      "bars": 28991,
+      "start": "2024-05-13 00:00:00",
+      "end": "2025-07-11 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_12",
+      "bars": 37055,
+      "start": "2024-06-11 00:00:00",
+      "end": "2025-12-05 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_13",
+      "bars": 26111,
+      "start": "2024-06-24 00:00:00",
+      "end": "2025-07-11 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_14",
+      "bars": 16895,
+      "start": "2024-07-08 00:00:00",
+      "end": "2025-03-13 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_15",
+      "bars": 23231,
+      "start": "2024-07-08 00:00:00",
+      "end": "2025-06-13 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_16",
+      "bars": 23135,
+      "start": "2024-09-04 00:00:00",
+      "end": "2025-08-08 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_17",
+      "bars": 31391,
+      "start": "2024-10-04 00:00:00",
+      "end": "2026-01-09 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_18",
+      "bars": 25248,
+      "start": "2024-10-07 00:00:00",
+      "end": "2025-10-13 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_19",
+      "bars": 14016,
+      "start": "2024-11-11 00:00:00",
+      "end": "2025-06-05 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_2",
+      "bars": 31485,
+      "start": "2023-01-09 00:00:00",
+      "end": "2024-04-12 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_20",
+      "bars": 18144,
+      "start": "2024-11-11 00:00:00",
+      "end": "2025-08-05 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_21",
+      "bars": 14017,
+      "start": "2025-01-13 00:00:00",
+      "end": "2025-08-05 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_22",
+      "bars": 16801,
+      "start": "2025-03-11 00:00:00",
+      "end": "2025-11-11 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_3",
+      "bars": 15648,
+      "start": "2023-01-18 00:00:00",
+      "end": "2023-09-01 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_4",
+      "bars": 12862,
+      "start": "2023-07-07 00:00:00",
+      "end": "2024-01-12 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_5",
+      "bars": 22173,
+      "start": "2023-10-04 00:00:00",
+      "end": "2024-08-26 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_6",
+      "bars": 30524,
+      "start": "2023-10-04 00:00:00",
+      "end": "2024-12-26 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_7",
+      "bars": 25244,
+      "start": "2023-10-09 00:00:00",
+      "end": "2024-10-11 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_8",
+      "bars": 16990,
+      "start": "2023-10-18 00:00:00",
+      "end": "2024-06-25 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "chart": "USDJPY_15m_cl_9",
+      "bars": 29566,
+      "start": "2024-03-04 00:00:00",
+      "end": "2025-05-09 23:45:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_1",
+      "bars": 11001,
+      "start": "2022-02-03 00:00:00",
+      "end": "2023-07-18 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_10",
+      "bars": 12337,
+      "start": "2024-06-19 00:00:00",
+      "end": "2025-06-17 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_11",
+      "bars": 14017,
+      "start": "2024-07-15 00:00:00",
+      "end": "2025-08-29 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_12",
+      "bars": 15121,
+      "start": "2024-08-30 00:00:00",
+      "end": "2025-11-18 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_13",
+      "bars": 14592,
+      "start": "2024-11-06 00:00:00",
+      "end": "2026-01-09 23:30:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_14",
+      "bars": 11521,
+      "start": "2024-11-11 00:00:00",
+      "end": "2025-10-15 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_2",
+      "bars": 16358,
+      "start": "2022-03-02 00:00:00",
+      "end": "2023-12-21 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_3",
+      "bars": 17856,
+      "start": "2022-09-29 00:00:00",
+      "end": "2024-03-06 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_4",
+      "bars": 12048,
+      "start": "2023-02-24 00:00:00",
+      "end": "2024-02-14 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_5",
+      "bars": 15936,
+      "start": "2023-04-03 00:00:00",
+      "end": "2024-07-12 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_6",
+      "bars": 13873,
+      "start": "2024-02-07 00:00:00",
+      "end": "2025-03-20 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_7",
+      "bars": 10369,
+      "start": "2024-03-27 00:00:00",
+      "end": "2025-01-27 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_8",
+      "bars": 16417,
+      "start": "2024-05-02 00:00:00",
+      "end": "2025-08-27 00:00:00"
+    },
+    {
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "chart": "USDJPY_30m_cl_9",
+      "bars": 17089,
+      "start": "2024-05-13 00:00:00",
+      "end": "2025-09-25 00:00:00"
+    }
+  ],
+  "filters": {
+    "max_drawdown_pct": 4.0,
+    "min_trades": 30,
+    "min_sharpe": 1.0,
+    "min_calmar": 0.5
+  },
+  "top_profiles": [
+    {
+      "trial_id": 2929,
+      "trial_uid": "20260110_195626:2929",
+      "chart": "USDJPY_15m_cl_11.csv",
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "total_return": -0.433076106419845,
+      "sharpe_ratio": -0.37834363715184904,
+      "calmar_ratio": -0.0035148823692175853,
+      "robust_score": -0.3157388745087975,
+      "max_drawdown_pct": 1.1758662942242974,
+      "total_trades": 30,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 6001,
+      "trial_uid": "20260110_195626:6001",
+      "chart": "USDJPY_15m_cl_14.csv",
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "total_return": -0.30936195390798094,
+      "sharpe_ratio": -0.35330084824585417,
+      "calmar_ratio": -0.0043035884907429945,
+      "robust_score": -0.31652758063032904,
+      "max_drawdown_pct": 1.175866294224322,
+      "total_trades": 30,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 29287,
+      "trial_uid": "20260110_195626:29287",
+      "chart": "USDJPY_30m_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "total_return": -0.8577007647714636,
+      "sharpe_ratio": -0.8883149409824963,
+      "calmar_ratio": -0.011366164988092666,
+      "robust_score": -0.3474137169128254,
+      "max_drawdown_pct": 1.2723480868882209,
+      "total_trades": 31,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 29127,
+      "trial_uid": "20260110_195626:29127",
+      "chart": "USDJPY_30m_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "total_return": -0.9336525415213983,
+      "sharpe_ratio": -1.0360033619363835,
+      "calmar_ratio": -0.011805799562708098,
+      "robust_score": -0.3627559359207583,
+      "max_drawdown_pct": 1.3330898673135458,
+      "total_trades": 32,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 2063,
+      "trial_uid": "20260110_195626:2063",
+      "chart": "USDJPY_15m_cl_11.csv",
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "total_return": -1.1582116347916454,
+      "sharpe_ratio": -1.134310286407162,
+      "calmar_ratio": -0.007937111175498031,
+      "robust_score": -0.37410858164380767,
+      "max_drawdown_pct": 1.3928437610625284,
+      "total_trades": 31,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 5135,
+      "trial_uid": "20260110_195626:5135",
+      "chart": "USDJPY_15m_cl_14.csv",
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "total_return": -1.1582116347916454,
+      "sharpe_ratio": -1.48587480986749,
+      "calmar_ratio": -0.013565243149187767,
+      "robust_score": -0.3797367136174974,
+      "max_drawdown_pct": 1.3928437610625284,
+      "total_trades": 31,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 2559,
+      "trial_uid": "20260110_195626:2559",
+      "chart": "USDJPY_15m_cl_11.csv",
+      "symbol": "USDJPY",
+      "timeframe": "15m",
+      "total_return": -1.3394319465802837,
+      "sharpe_ratio": -1.5351350094629295,
+      "calmar_ratio": -0.009053505671147077,
+      "robust_score": -0.3803631747007431,
+      "max_drawdown_pct": 1.4122090017843618,
+      "total_trades": 30,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 29031,
+      "trial_uid": "20260110_195626:29031",
+      "chart": "USDJPY_30m_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "total_return": -1.1480796173908165,
+      "sharpe_ratio": -1.2535539512415064,
+      "calmar_ratio": -0.013541515596070976,
+      "robust_score": -0.387967707003687,
+      "max_drawdown_pct": 1.428073703248185,
+      "total_trades": 33,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 26352,
+      "trial_uid": "20260110_195626:26352",
+      "chart": "USDJPY_30m_cl_12.csv",
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "total_return": -1.1378103232206778,
+      "sharpe_ratio": -1.3786320402725767,
+      "calmar_ratio": -0.014516202639648406,
+      "robust_score": -0.3895950971234234,
+      "max_drawdown_pct": 1.4272859036010777,
+      "total_trades": 30,
+      "long_trades": 3.0,
+      "short_trades": null,
+      "long_win_rate": 0.0,
+      "short_win_rate": null,
+      "long_expectancy": -0.0027860788463099726,
+      "short_expectancy": null
+    },
+    {
+      "trial_id": 29339,
+      "trial_uid": "20260110_195626:29339",
+      "chart": "USDJPY_30m_cl_2.csv",
+      "symbol": "USDJPY",
+      "timeframe": "30m",
+      "total_return": -1.1149654242197575,
+      "sharpe_ratio": -1.220539658685396,
+      "calmar_ratio": -0.012743192587354447,
+      "robust_score": -0.39890522247962906,
+      "max_drawdown_pct": 1.4739374414504436,
+      "total_trades": 32,
+      "long_trades": NaN,
+      "short_trades": null,
+      "long_win_rate": NaN,
+      "short_win_rate": null,
+      "long_expectancy": NaN,
+      "short_expectancy": null
+    }
+  ],
+  "strong_profiles": [],
+  "directional_totals": {
+    "long_trades": 224874,
+    "long_win_rate_avg": 12.434586712712209,
+    "long_expectancy_avg": -0.0010699056032407058
+  }
+}

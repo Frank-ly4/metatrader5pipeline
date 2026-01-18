@@ -516,11 +516,53 @@ def main():
     
     # Create results DataFrame
     results_df = pd.DataFrame(all_rows)
-    if len(results_df) > 0 and params['metric'] in results_df.columns:
-        # Sort by metric (descending)
-        if len(results_df) <= 50000:  # Only sort if manageable
-            results_df = results_df.sort_values(params['metric'], ascending=False)
-    
+
+    # -------------------------------
+    # [PATCH] Robust Calmar handling
+    # -------------------------------
+    def _safe_float(x, default=np.nan):
+        try:
+            return float(x)
+        except Exception:
+            return default
+
+    def add_robust_metrics(df: pd.DataFrame) -> pd.DataFrame:
+        if df is None or len(df) == 0:
+            return df
+        # Use row-level max_drawdown as a proxy for tail risk; take abs() in case of sign conventions
+        if 'max_drawdown' in df.columns:
+            cdar95_proxy = df['max_drawdown'].apply(lambda v: abs(_safe_float(v)))
+        else:
+            cdar95_proxy = np.nan
+        med_calmar = df['calmar_ratio'] if 'calmar_ratio' in df.columns else np.nan
+        trades = df['total_trades'] if 'total_trades' in df.columns else np.nan
+
+        # Higher is better
+        df['robust_score'] = med_calmar - 0.25 * cdar95_proxy - 0.10 * (1.0 / np.sqrt(np.maximum(trades.fillna(0), 1)))
+        return df
+
+    # Add robust metrics
+    if len(results_df) > 0:
+        results_df = add_robust_metrics(results_df)
+
+        # [PATCH] Gate: require a minimum number of trades (default 30)
+        MIN_TRADES_GATE = 30
+        gated_df = results_df.copy()
+        if 'total_trades' in gated_df.columns:
+            gated_df = gated_df[gated_df['total_trades'].fillna(0) >= MIN_TRADES_GATE]
+
+        # Prefer robust_score sort; fall back to metric if needed
+        sort_key = 'robust_score' if 'robust_score' in gated_df.columns else params['metric']
+        # If gate filtered everything, revert to original df but still sort by robust_score if present
+        if len(gated_df) == 0:
+            gated_df = results_df
+        if len(gated_df) <= 50000:
+            gated_df = gated_df.sort_values(sort_key, ascending=False)
+        results_sorted = gated_df
+    else:
+        results_sorted = results_df
+    # -------------------------------
+
     # Process trades with single concatenation
     trades_df_all = None
     if trades_batch:
@@ -566,7 +608,7 @@ def main():
         print(f"📊 Updating Excel notebook...")
         nb_path = optimized_notebook_append_interactive(
             out_dir, 'optimizer_central', run_id, metadata, 
-            results_df, trades_df_all, params['performance_mode']
+            results_sorted, trades_df_all, params['performance_mode']
         )
         if nb_path:
             print(f"   ✅ Excel completed: {os.path.basename(nb_path)}")
@@ -574,15 +616,16 @@ def main():
     # JSON output
     print(f"📄 Saving JSON results...")
     try:
-        best = results_df.iloc[0].to_dict() if len(results_df) > 0 else {}
+        best = results_sorted.iloc[0].to_dict() if len(results_sorted) > 0 else {}
         
         # Add trial UIDs for JSON
-        if 'trial_id' in results_df.columns:
-            results_df['trial_uid'] = vectorized_trial_uid_creation(results_df['trial_id'], run_id)
+        if 'trial_id' in results_sorted.columns:
+            results_sorted = results_sorted.copy()
+            results_sorted['trial_uid'] = vectorized_trial_uid_creation(results_sorted['trial_id'], run_id)
         
         payload = {
             'metadata': metadata,
-            'results': results_df.to_dict('records')
+            'results': results_sorted.to_dict('records')
         }
         
         json_name = f"interactive_{params['method']}_{params['trials']}_{run_id}.json"
@@ -602,7 +645,7 @@ def main():
             
             fname_base = f"interactive_{params['method']}_{params['trials']}_{run_id}"
             csv_path = os.path.join(csv_dir, f"{fname_base}.csv")
-            results_df.to_csv(csv_path, index=False)
+            results_sorted.to_csv(csv_path, index=False)
             print(f"   ✅ CSV completed: {os.path.basename(csv_path)}")
             
         except Exception as e:
@@ -632,6 +675,7 @@ def main():
             'trials_per_chart': params['trials'],
             'total_trials': total_trials,
             'charts': metadata.get('charts', []),
+            # [PATCH] keep filters here; min_trades already enforced in gating above
             'filters': {
                 'max_drawdown_pct': 4.0,
                 'min_trades': 30,
@@ -654,6 +698,7 @@ def main():
                 'total_return': row.get('total_return'),
                 'sharpe_ratio': row.get('sharpe_ratio'),
                 'calmar_ratio': row.get('calmar_ratio'),
+                'robust_score': row.get('robust_score'),
                 'max_drawdown_pct': dd_pct,
                 'total_trades': row.get('total_trades'),
                 'long_trades': row.get('long_trades'),
@@ -664,8 +709,8 @@ def main():
                 'short_expectancy': row.get('short_expectancy'),
             }
 
-        if len(results_df) > 0:
-            top_slice = results_df.head(10)
+        if len(results_sorted) > 0:
+            top_slice = results_sorted.head(10)
             summary['top_profiles'] = [_row_extract(r) for r in top_slice.to_dict('records')]
 
             dd_limit = summary['filters']['max_drawdown_pct']
@@ -685,16 +730,17 @@ def main():
                     return False
                 return True
 
-            strong_rows = [r for r in results_df.to_dict('records') if _passes(r)]
+            strong_rows = [r for r in results_sorted.to_dict('records') if _passes(r)]
             summary['strong_profiles'] = [_row_extract(r) for r in strong_rows]
 
             # Directional totals
             for fld in ('long_trades', 'short_trades'):
-                if fld in results_df.columns:
-                    summary['directional_totals'][fld] = int(results_df[fld].fillna(0).sum())
+                if fld in results_sorted.columns:
+                    summary['directional_totals'][fld] = int(results_sorted[fld].fillna(0).sum())
             for fld in ('long_win_rate', 'short_win_rate', 'long_expectancy', 'short_expectancy'):
-                if fld in results_df.columns:
-                    summary['directional_totals'][f"{fld}_avg"] = float(results_df[fld].dropna().mean()) if len(results_df[fld].dropna()) else None
+                if fld in results_sorted.columns:
+                    series = results_sorted[fld].dropna()
+                    summary['directional_totals'][f"{fld}_avg"] = float(series.mean()) if len(series) else None
 
         summary_path = os.path.join(runs_dir, f"summary_{ts_tag}.json")
         with open(summary_path, 'w', encoding='utf-8') as f:
@@ -713,9 +759,12 @@ def main():
     print(f"🔬 Total trials: {total_trials:,}")
     print(f"⚡ Method: {params['method'].upper()}")
     
-    if len(results_df) > 0:
-        best_result = results_df.iloc[0]
-        print(f"\n🏆 BEST RESULT:")
+    if len(results_sorted) > 0:
+        best_result = results_sorted.iloc[0]
+        # Show both scores so it’s obvious we used robust sort
+        rs = best_result.get('robust_score', None)
+        if rs is not None and not pd.isna(rs):
+            print(f"\n🏆 BEST RESULT (by robust_score): {rs:.3f}")
         print(f"   {params['metric'].replace('_', ' ').title()}: {best_result.get(params['metric'], 'N/A'):.3f}")
         if 'sharpe_ratio' in best_result and params['metric'] != 'sharpe_ratio':
             print(f"   Sharpe Ratio: {best_result.get('sharpe_ratio', 'N/A'):.3f}")
@@ -742,10 +791,11 @@ def main():
             charts=[os.path.basename(p) for p in selected_charts],
             trials=params['trials'],
             best_summary={
-                params['metric']: best.get(params['metric']) if len(results_df) > 0 else None,
+                # keep original metric for continuity; robust_score used for sorting above
+                params['metric']: best.get(params['metric']) if len(results_sorted) > 0 else None,
             },
             outputs={'json': os.path.relpath(json_path, out_dir) if json_path else ''},
-            notes=f"interactive {params['method']} optimization",
+            notes=f"interactive {params['method']} optimization (robust_score sort, min_trades gate={30})",
         )
     except:
         pass
