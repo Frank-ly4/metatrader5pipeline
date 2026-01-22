@@ -384,6 +384,12 @@ def evaluate_collect_kfold(
 
     Returns a list of per-fold result rows and a concatenated trades DataFrame (with fold_id).
     """
+    def _extract_trade_pnl(trades_df: pd.DataFrame) -> pd.Series | None:
+        for cand in ('PnL', 'pnl', 'PnL [$]', 'Net Profit', 'net_profit', 'Profit', 'profit'):
+            if cand in trades_df.columns:
+                return pd.to_numeric(trades_df[cand], errors='coerce')
+        return None
+
     n = len(price)
     if n < 10:
         return [], pd.DataFrame()
@@ -393,6 +399,22 @@ def evaluate_collect_kfold(
     v = max(lookback + 1, int((n - embargo) // max(1, min(k_folds, 3))))
     rows = []
     all_trades = []
+    total_return_vals = []
+    sharpe_vals = []
+    sortino_vals = []
+    calmar_vals = []
+    max_drawdown_vals = []
+    win_rate_vals = []
+    total_trades_vals = []
+    profit_factor_vals = []
+    expectancy_vals = []
+    avg_hold_hours_vals = []
+    ulcer_vals = []
+    omega0_vals = []
+    omegaf_vals = []
+    gross_profit_total = 0.0
+    gross_loss_total = 0.0
+    trade_pnl_found = False
     for fold in range(k_folds):
         val_start = fold * v
         val_end = min(n, (fold + 1) * v)
@@ -505,6 +527,19 @@ def evaluate_collect_kfold(
             # 'dd_adj': dbg.get('dd_adj'),
             'params': params.copy(),
         }
+        total_return_vals.append(total_return_val)
+        sharpe_vals.append(sharpe_ratio_val)
+        sortino_vals.append(sortino_ratio_val)
+        calmar_vals.append(calmar_ratio_val / 100.0 if calmar_ratio_val != 0 else 0.0)
+        max_drawdown_vals.append(max_drawdown_val)
+        win_rate_vals.append(win_rate_val)
+        total_trades_vals.append(total_trades_val)
+        profit_factor_vals.append(profit_factor_val)
+        expectancy_vals.append(expectancy_val)
+        avg_hold_hours_vals.append(avg_hold_hours_val)
+        ulcer_vals.append(ui)
+        omega0_vals.append(omega0)
+        omegaf_vals.append(omegaf)
         try:
             row.update(_directional_metrics(tdf))
         except Exception:
@@ -513,13 +548,76 @@ def evaluate_collect_kfold(
         try:
             tdf = pf.trades.records_readable.copy()
             if len(tdf) > 0:
-                tdf['fold_id'] = fold + 1
-                all_trades.append(tdf)
+                pnl_series = _extract_trade_pnl(tdf)
+                if pnl_series is not None:
+                    pnl_series = pnl_series.dropna()
+                    gross_profit_total += float(pnl_series[pnl_series > 0].sum())
+                    gross_loss_total += float(pnl_series[pnl_series < 0].sum())
+                    trade_pnl_found = True
+                    tdf['fold_id'] = fold + 1
+                    all_trades.append(tdf)
         except Exception:
             pass
-    trades_df = pd.concat(all_trades, ignore_index=True, sort=False) if len(all_trades) > 0 else pd.DataFrame()
-    return rows, trades_df
+    if len(rows) > 0:
+        def _median(values: list[float]) -> float:
+            arr = np.asarray(values, dtype=float)
+            return float(np.nanmedian(arr)) if arr.size > 0 else 0.0
 
+        def _worst(values: list[float]) -> float:
+            arr = np.asarray(values, dtype=float)
+            return float(np.nanmax(arr)) if arr.size > 0 else 0.0
+
+        agg_total_trades = int(np.nansum(np.asarray(total_trades_vals, dtype=float)))
+        agg_total_return = _median(total_return_vals)
+        agg_sharpe = _median(sharpe_vals)
+        agg_sortino = _median(sortino_vals)
+        agg_calmar = _median(calmar_vals)
+        agg_max_drawdown = _worst(max_drawdown_vals)
+        agg_win_rate = _median(win_rate_vals)
+        agg_expectancy = _median(expectancy_vals)
+        agg_avg_hold_hours = _median(avg_hold_hours_vals)
+        agg_ulcer = _median(ulcer_vals)
+        agg_omega0 = _median(omega0_vals)
+        agg_omegaf = _median(omegaf_vals)
+        if trade_pnl_found:
+            if gross_loss_total == 0:
+                pf_agg = np.inf if gross_profit_total > 0 else 0.0
+            else:
+                pf_agg = gross_profit_total / abs(gross_loss_total)
+        else:
+            pf_agg = np.nan
+        agg_profit_factor = _sanitize_metric_kfold(pf_agg)
+
+        agg_row = {
+            'row_type': 'kfold_agg',
+            'fold_id': 'agg',
+            'bars_total': int(n),
+            'bars_train': np.nan,
+            'bars_embargo': int(embargo),
+            'bars_val': np.nan,
+            'val_start': None,
+            'val_end': None,
+            'total_return': agg_total_return,
+            'sharpe_ratio': agg_sharpe,
+            'sortino_ratio': agg_sortino,
+            'calmar_ratio': agg_calmar,
+            'max_drawdown': agg_max_drawdown,
+            'win_rate': agg_win_rate,
+            'total_trades': agg_total_trades,
+            'profit_factor': agg_profit_factor,
+            'expectancy': agg_expectancy,
+            'avg_hold_hours': agg_avg_hold_hours,
+            'ulcer_index': agg_ulcer,
+            'omega_0': agg_omega0,
+            'omega_fees': agg_omegaf,
+            'params': params.copy(),
+        }
+        rows.append(agg_row)
+    trades_df = pd.concat(all_trades, ignore_index=True, sort=False) if len(all_trades) > 0 else pd.DataFrame()
+    if trade_pnl_found:
+        row['gross_profit_total'] = gross_profit_total
+        row['gross_loss_total'] = gross_loss_total
+    return rows, trades_df
 
 def grid_search(price: pd.DataFrame, param_ranges: dict, toggles: dict, max_combinations: int = 500, metric: str = 'total_return', seed: int = 42) -> pd.DataFrame:
     # Use the unified sampler

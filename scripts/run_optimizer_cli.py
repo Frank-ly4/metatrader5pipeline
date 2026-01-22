@@ -425,13 +425,17 @@ def main():
         print(f"\n📊 Processing chart {chart_idx+1}/{len(selected_charts)}: {chart_name}")
         
         # Generate parameters for this chart
-        params_list = sample_param_sets(PARAMS_NORM, method=params['method'], 
-                                      n=params['trials'], seed=params['seed'])
+        param_sets = sample_param_sets(
+            PARAMS_NORM,
+            method=params['method'],
+            n=params['trials'],
+            seed=params['seed'],
+        )
         
         chart_trades = []
         
         # Process trials
-        for param_idx, trial_params in enumerate(params_list):
+        for param_set in param_sets:
             # Build per-trial toggles so we can pass chart context downstream
             trial_toggles = dict(TOGGLES)
             trial_toggles['chart_name'] = chart_name
@@ -440,7 +444,7 @@ def main():
 
             if params['kfold'] > 0:
                 rows, trades_df = evaluate_collect_kfold(
-                    price, trial_params, trial_toggles, compute_signals_func,
+                    price, param_set, trial_toggles, compute_signals_func,
                     k_folds=params['kfold'], embargo_frac=params['embargo_frac']
                 )
                 
@@ -465,7 +469,7 @@ def main():
                     chart_trades.append(trades_df)
                     
             else:
-                row, trades_df = evaluate_collect(price, trial_params, trial_toggles, compute_signals_func)
+                row, trades_df = evaluate_collect(price, param_set, trial_toggles, compute_signals_func)
                 trial_counter += 1
                 
                 # Efficient parameter flattening
@@ -542,25 +546,44 @@ def main():
         return df
 
     # Add robust metrics
+    best_candidates = results_df
     if len(results_df) > 0:
         results_df = add_robust_metrics(results_df)
 
         # [PATCH] Gate: require a minimum number of trades (default 30)
         MIN_TRADES_GATE = 30
-        gated_df = results_df.copy()
+        MIN_PROFIT_FACTOR_GATE = 1.05
+
+        def _sort_results(df: pd.DataFrame) -> pd.DataFrame:
+            sort_cols = [c for c in ('profit_factor', 'total_return', 'max_drawdown') if c in df.columns]
+            if sort_cols:
+                ascending = [False if c != 'max_drawdown' else True for c in sort_cols]
+                return df.sort_values(sort_cols, ascending=ascending)
+            metric_col = params['metric']
+            if metric_col in df.columns:
+                return df.sort_values(metric_col, ascending=False)
+            return df
+
+        results_sorted = results_df
+        if len(results_sorted) <= 50000:
+            results_sorted = _sort_results(results_sorted)
+
+        gated_df = results_sorted.copy()
+        if params['kfold'] > 0 and 'row_type' in gated_df.columns:
+            gated_df = gated_df[gated_df['row_type'] == 'kfold_agg']
         if 'total_trades' in gated_df.columns:
             gated_df = gated_df[gated_df['total_trades'].fillna(0) >= MIN_TRADES_GATE]
+        if 'profit_factor' in gated_df.columns:
+            gated_df = gated_df[gated_df['profit_factor'].fillna(0) >= MIN_PROFIT_FACTOR_GATE]
 
-        # Prefer robust_score sort; fall back to metric if needed
-        sort_key = 'robust_score' if 'robust_score' in gated_df.columns else params['metric']
-        # If gate filtered everything, revert to original df but still sort by robust_score if present
+        if len(gated_df) > 0 and len(gated_df) <= 50000:
+            gated_df = _sort_results(gated_df)
         if len(gated_df) == 0:
-            gated_df = results_df
-        if len(gated_df) <= 50000:
-            gated_df = gated_df.sort_values(sort_key, ascending=False)
-        results_sorted = gated_df
+            gated_df = results_sorted
+        best_candidates = gated_df
     else:
         results_sorted = results_df
+        best_candidates = results_sorted
     # -------------------------------
 
     # Process trades with single concatenation
@@ -616,7 +639,7 @@ def main():
     # JSON output
     print(f"📄 Saving JSON results...")
     try:
-        best = results_sorted.iloc[0].to_dict() if len(results_sorted) > 0 else {}
+        best = best_candidates.iloc[0].to_dict() if len(best_candidates) > 0 else {}
         
         # Add trial UIDs for JSON
         if 'trial_id' in results_sorted.columns:
@@ -759,18 +782,27 @@ def main():
     print(f"🔬 Total trials: {total_trials:,}")
     print(f"⚡ Method: {params['method'].upper()}")
     
-    if len(results_sorted) > 0:
-        best_result = results_sorted.iloc[0]
-        # Show both scores so it’s obvious we used robust sort
+    if len(best_candidates) > 0:
+        best_result = best_candidates.iloc[0]
+
+        def _fmt(val, suffix: str = "") -> str:
+            try:
+                return f"{float(val):.3f}{suffix}"
+            except Exception:
+                return "N/A"
+
+        print("\n🏆 BEST RESULT (gated & sorted):")
+        print(f"   Profit Factor: {_fmt(best_result.get('profit_factor'))}")
+        print(f"   Total Return: {_fmt(best_result.get('total_return'), '%')}")
+        print(f"   Sharpe Ratio: {_fmt(best_result.get('sharpe_ratio'))}")
+        print(f"   Calmar Ratio: {_fmt(best_result.get('calmar_ratio'))}")
+        print(f"   Max Drawdown: {_fmt(best_result.get('max_drawdown'), '%')}")
+        print(f"   Total Trades: {best_result.get('total_trades', 'N/A')}")
+        print(f"   Row Type: {best_result.get('row_type', 'standard')}")
+        print(f"   Chart: {best_result.get('chart', 'N/A')}")
         rs = best_result.get('robust_score', None)
         if rs is not None and not pd.isna(rs):
-            print(f"\n🏆 BEST RESULT (by robust_score): {rs:.3f}")
-        print(f"   {params['metric'].replace('_', ' ').title()}: {best_result.get(params['metric'], 'N/A'):.3f}")
-        if 'sharpe_ratio' in best_result and params['metric'] != 'sharpe_ratio':
-            print(f"   Sharpe Ratio: {best_result.get('sharpe_ratio', 'N/A'):.3f}")
-        if 'max_drawdown' in best_result:
-            print(f"   Max Drawdown: {best_result.get('max_drawdown', 'N/A'):.3f}%")
-        print(f"   Chart: {best_result.get('chart', 'N/A')}")
+         print(f"   Robust Score (reference): {_fmt(rs)}")
     
     print(f"\n📁 OUTPUT FILES:")
     if nb_path:

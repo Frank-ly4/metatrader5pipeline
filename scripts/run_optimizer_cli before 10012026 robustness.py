@@ -425,13 +425,17 @@ def main():
         print(f"\n📊 Processing chart {chart_idx+1}/{len(selected_charts)}: {chart_name}")
         
         # Generate parameters for this chart
-        params_list = sample_param_sets(PARAMS_NORM, method=params['method'], 
-                                      n=params['trials'], seed=params['seed'])
+        param_sets = sample_param_sets(
+            PARAMS_NORM,
+            method=params['method'],
+            n=params['trials'],
+            seed=params['seed'],
+        )
         
         chart_trades = []
         
         # Process trials
-        for param_idx, trial_params in enumerate(params_list):
+        for param_set in param_sets:
             # Build per-trial toggles so we can pass chart context downstream
             trial_toggles = dict(TOGGLES)
             trial_toggles['chart_name'] = chart_name
@@ -440,7 +444,7 @@ def main():
 
             if params['kfold'] > 0:
                 rows, trades_df = evaluate_collect_kfold(
-                    price, trial_params, trial_toggles, compute_signals_func,
+                    price, param_set, trial_toggles, compute_signals_func,
                     k_folds=params['kfold'], embargo_frac=params['embargo_frac']
                 )
                 
@@ -465,7 +469,7 @@ def main():
                     chart_trades.append(trades_df)
                     
             else:
-                row, trades_df = evaluate_collect(price, trial_params, trial_toggles, compute_signals_func)
+                row, trades_df = evaluate_collect(price, param_set, trial_toggles, compute_signals_func)
                 trial_counter += 1
                 
                 # Efficient parameter flattening
