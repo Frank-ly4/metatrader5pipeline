@@ -245,7 +245,13 @@ def _directional_metrics(trades: pd.DataFrame) -> dict:
     return out
 
 
-def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_signals_func) -> tuple[dict, pd.DataFrame]:
+def evaluate_collect(
+    price: pd.DataFrame,
+    params: dict,
+    toggles: dict,
+    compute_signals_func,
+    regime_filter: str | None = None
+) -> tuple[dict, pd.DataFrame]:
     """Evaluate one parameter set and also return per-trade records (readable).
     
     Handles both 3-tuple (legacy long-only) and 5-tuple (bidirectional) return shapes.
@@ -263,20 +269,23 @@ def evaluate_collect(price: pd.DataFrame, params: dict, toggles: dict, compute_s
 
     # Detect return shape: 3-tuple (legacy) or 5-tuple (bidirectional)
     if len(result) == 5:
-        # Bidirectional: (long_entries, long_exits, short_entries, short_exits, debug)
         long_entries, long_exits, short_entries, short_exits, _ = result
-        pf = run_backtest(
-            price, 
-            long_entries, 
-            long_exits,
-            short_entries=short_entries,
-            short_exits=short_exits,
-            backtest_overrides=USER_BACKTEST_CONFIG
-        )
     else:
-        # Legacy 3-tuple: (entries, exits, debug)
         entries, exits, _ = result
-        pf = run_backtest(price, entries, exits, backtest_overrides=USER_BACKTEST_CONFIG)
+        # Ensure bidirectional format for consistency
+        long_entries, long_exits, short_entries, short_exits = entries, exits, pd.Series(False, index=price.index), pd.Series(False, index=price.index)
+
+    # Apply regime mask to entries if a filter is provided
+    if regime_filter and regime_filter != 'All' and 'regime' in price.columns:
+        mask = (price['regime'] == regime_filter)
+        long_entries[~mask] = False
+        short_entries[~mask] = False
+
+    pf = run_backtest(
+        price, long_entries, long_exits,
+        short_entries=short_entries, short_exits=short_exits,
+        backtest_overrides=USER_BACKTEST_CONFIG
+    )
     stats = pf.stats()
     try:
         trades = pf.trades.records_readable.copy()
@@ -377,6 +386,7 @@ def evaluate_collect_kfold(
     toggles: dict,
     compute_signals_func,
     *,
+    regime_filter: str | None = None,
     k_folds: int = 3,
     embargo_frac: float = 0.05,
 ) -> tuple[list[dict], pd.DataFrame]:
@@ -430,22 +440,23 @@ def evaluate_collect_kfold(
         # so we simply evaluate on val_price to compute performance for this fold.
         result = compute_signals_func(val_price, params, toggles)
         
-        # Detect return shape: 3-tuple (legacy) or 5-tuple (bidirectional)
         if len(result) == 5:
-            # Bidirectional: (long_entries, long_exits, short_entries, short_exits, debug)
             long_entries, long_exits, short_entries, short_exits, _ = result
-            pf = run_backtest(
-                val_price,
-                long_entries,
-                long_exits,
-                short_entries=short_entries,
-                short_exits=short_exits,
-                backtest_overrides=USER_BACKTEST_CONFIG
-            )
         else:
-            # Legacy 3-tuple: (entries, exits, debug)
             entries, exits, _ = result
-            pf = run_backtest(val_price, entries, exits, backtest_overrides=USER_BACKTEST_CONFIG)
+            long_entries, long_exits, short_entries, short_exits = entries, exits, pd.Series(False, index=val_price.index), pd.Series(False, index=val_price.index)
+
+        # Apply regime mask to entries if a filter is provided
+        if regime_filter and regime_filter != 'All' and 'regime' in val_price.columns:
+            mask = (val_price['regime'] == regime_filter)
+            long_entries[~mask] = False
+            short_entries[~mask] = False
+
+        pf = run_backtest(
+            val_price, long_entries, long_exits,
+            short_entries=short_entries, short_exits=short_exits,
+            backtest_overrides=USER_BACKTEST_CONFIG
+        )
         stats = pf.stats()
         # extra metrics
         equity, rets = _try_pf_equity_returns(pf)
@@ -971,4 +982,3 @@ def _parse_range_string(spec: str) -> list:
         return [int(s)]
     except ValueError:
         return [float(s)]
-

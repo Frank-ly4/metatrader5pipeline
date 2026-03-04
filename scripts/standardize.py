@@ -434,6 +434,16 @@ def main():
 
             # normalize
             df, interval_lbl, pandas_freq = normalize_chart(src_path)
+
+            # Add regime labels
+            try:
+                from src.analysis.regime import add_regime_labels
+                df = add_regime_labels(df.copy()) # Pass a copy to avoid pandas warnings
+                print(f"  Regime labels added for {fname}")
+            except ImportError:
+                print("  Warning: Could not import regime analyzer. Skipping regime labeling.")
+            except Exception as e:
+                print(f"  Warning: Failed to add regime labels for {fname}: {e}")
             
             # Try to detect timeframe from filename, otherwise use inferred
             detected_tf = parse_timeframe_from_filename(fname)
@@ -532,59 +542,8 @@ def main():
             pass
     print(f"Done. {count} chart(s) standardized to {args.dst}")
     
-    # Run chart analyzer on newly standardized charts
-    if newly_standardized:
-        print("\n" + "=" * 60)
-        print(f"Running chart analyzer on {len(newly_standardized)} newly standardized chart(s)...")
-        print("=" * 60)
-        
-        try:
-            import sys
-            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            from scripts.chart_analyzer import (
-                load_chart_from_path, compute_regimes, segment_by_regime,
-                summarize_segments, compute_human_summary, save_analysis
-            )
-            
-            analysis_dir = os.path.join('outputs', 'analyses')
-            os.makedirs(analysis_dir, exist_ok=True)
-            
-            # Default regime parameters (matching chart_analyzer defaults)
-            regime_params = {
-                'momentum_len': 20,
-                'vol_len': 20,
-                'trend_threshold': 0.0,
-                'use_mcg_trend': True,
-                'hma_len': 20,
-                'hysteresis': 2,
-            }
-            
-            for chart_path in newly_standardized:
-                try:
-                    price = load_chart_from_path(chart_path)
-                    base_name = os.path.splitext(os.path.basename(chart_path))[0]
-                    
-                    regs = compute_regimes(price, **regime_params)
-                    segs = segment_by_regime(price, regs['regime'])
-                    segdf = summarize_segments(price, segs)
-                    summary = compute_human_summary(price, regs, segdf)
-                    
-                    saved = save_analysis(chart_path, regime_params, price, regs, segdf, summary, analysis_dir)
-                    print(f"  Analyzed: {base_name} -> {os.path.basename(saved['json'])}")
-                except Exception as e:
-                    print(f"  Warning: Failed to analyze {os.path.basename(chart_path)}: {e}")
-            
-            print(f"\nChart analysis completed. Results saved to {analysis_dir}")
-        except ImportError as e:
-            print(f"\nWarning: Could not import chart analyzer modules: {e}")
-            print("Skipping analysis. Run manually: python scripts/chart_analyzer.py --all --save-analysis")
-        except Exception as e:
-            print(f"\nWarning: Chart analyzer failed: {e}")
-            import traceback
-            traceback.print_exc()
+    # The chart_analyzer logic has been replaced by the integrated regime labeling step.
 
 
 if __name__ == '__main__':
     main()
-
-
